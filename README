@@ -1,0 +1,52 @@
+Connline Library
+****************
+
+Copyright (C) 2011-2012  Intel Corporation. All rights reserved.
+
+
+
+Provides a simple API to request a network connectivity to the connection daemon
+present on the system.
+
+
+Features
+========
+
+Supported Backends:
+	- ConnMan
+	- Network Manager
+	- Wicd
+
+Supported Main Loops:
+	- Glib
+	- ECore (EFL)
+	- libevent
+
+
+Compiling
+=========
+
+./autogen.sh
+
+./configure   (see ./configure --help for more information)
+
+make
+
+
+Installation
+============
+
+make install
+
+
+Documentation
+=============
+
+A doxygen html documentation can be generated in doc directory:
+
+cd doc
+doxygen doxydoc.conf
+
+
+Take a look on examples in test/ directory.
+
