@@ -258,11 +258,15 @@ next:
 	}
 
 out:
+	dbus_message_unref(reply);
 	dbus_pending_call_unref(pending);
 
 	return;
 
 error:
+	if (reply != NULL)
+		dbus_message_unref(reply);
+
 	dbus_pending_call_unref(pending);
 
 	nm_backend_data_cleanup(context);
@@ -359,12 +363,16 @@ static void nm_devices_cb(DBusPendingCall *pending, void *user_data)
 		free(devices_obj);
 	}
 
+	dbus_message_unref(reply);
 	dbus_pending_call_unref(pending);
 
 	return;
 
 error:
 	free(devices_obj);
+
+	if (reply != NULL)
+		dbus_message_unref(reply);
 
 	dbus_pending_call_unref(pending);
 
@@ -503,11 +511,15 @@ static void nm_state_cb(DBusPendingCall *pending, void *user_data)
 
 	nm->state = state;
 
+	dbus_message_unref(reply);
 	dbus_pending_call_unref(pending);
 
 	return;
 
 error:
+	if (reply != NULL)
+		dbus_message_unref(reply);
+
 	dbus_pending_call_unref(pending);
 
 	nm_backend_data_cleanup(context);
