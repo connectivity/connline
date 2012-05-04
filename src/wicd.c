@@ -156,11 +156,15 @@ static void wicd_interface_cb(DBusPendingCall *pending, void *user_data)
 	if (properties != NULL)
 		__connline_call_property_callback(context, properties);
 
+	dbus_message_unref(reply);
 	dbus_pending_call_unref(pending);
 
 	return;
 
 error:
+	if (reply != NULL)
+		dbus_message_unref(reply);
+
 	dbus_pending_call_unref(pending);
 
 	wicd_backend_data_cleanup(context);
@@ -418,12 +422,16 @@ static void wicd_connection_status_cb(DBusPendingCall *pending, void *user_data)
 out:
 	free(ip);
 
+	dbus_message_unref(reply);
 	dbus_pending_call_unref(pending);
 
 	return;
 
 error:
 	free(ip);
+
+	if (reply != NULL)
+		dbus_message_unref(reply);
 
 	dbus_pending_call_unref(pending);
 
