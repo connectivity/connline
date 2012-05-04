@@ -476,12 +476,16 @@ static void create_session_callback(DBusPendingCall *pending, void *user_data)
 	printf("create_session_callback(): %p - %s - %s\n", context,
 			connman->session_path, connman->notifier_path);
 
+	dbus_message_unref(reply);
 	dbus_pending_call_unref(pending);
 
 	if (connman_connect(context) == 0)
 		return;
 
 error:
+	if (reply != NULL)
+		dbus_message_unref(reply);
+
 	dbus_pending_call_unref(pending);
 
 	connman_backend_data_cleanup(context);
