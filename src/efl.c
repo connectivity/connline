@@ -174,7 +174,7 @@ static Eina_Bool timeout_handler_dispatch(void *data)
 
 	dbus_timeout_handle(to_handler->timeout);
 
-	return TRUE;
+	return EINA_FALSE;
 }
 
 static dbus_bool_t efl_dbus_timeout_add(DBusTimeout *timeout, void *data)
