@@ -21,9 +21,76 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/signalfd.h>
 
 #include <glib.h>
 #include <connline/connline.h>
+
+static gboolean signal_handler(GIOChannel *channel,
+					GIOCondition cond,
+					gpointer user_data)
+{
+	GMainLoop *loop = user_data;
+	struct signalfd_siginfo si;
+	ssize_t result;
+	int fd;
+
+	if (cond & (G_IO_NVAL | G_IO_ERR | G_IO_HUP))
+		return FALSE;
+
+	printf("Terminating...\n");
+
+	fd = g_io_channel_unix_get_fd(channel);
+
+	result = read(fd, &si, sizeof(si));
+	if (result != sizeof(si))
+		return FALSE;
+
+	switch (si.ssi_signo) {
+	case SIGINT:
+	case SIGTERM:
+		g_main_loop_quit(loop);
+		break;
+	}
+
+	return TRUE;
+}
+
+static unsigned int setul_signal_handler(GMainLoop *loop)
+{
+	GIOChannel *channel;
+	unsigned int source;
+	sigset_t mask;
+	int fd;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGINT);
+	sigaddset(&mask, SIGTERM);
+
+	if (sigprocmask(SIG_BLOCK, &mask, NULL) < 0)
+		return -1;
+
+	fd = signalfd(-1, &mask, 0);
+	if (fd < 0)
+		return -1;
+
+	channel = g_io_channel_unix_new(fd);
+
+	g_io_channel_set_close_on_unref(channel, TRUE);
+	g_io_channel_set_encoding(channel, NULL, NULL);
+	g_io_channel_set_buffered(channel, FALSE);
+
+	source = g_io_add_watch(channel,
+				G_IO_IN | G_IO_HUP | G_IO_ERR | G_IO_NVAL,
+				signal_handler, loop);
+
+	g_io_channel_unref(channel);
+
+	return source;
+}
 
 void print_properties(char **properties)
 {
@@ -40,17 +107,6 @@ void print_properties(char **properties)
 	}
 }
 
-gboolean cleanup_everything(gpointer data)
-{
-	GMainLoop *loop = data;
-
-	connline_cleanup();
-
-	g_main_loop_quit(loop);
-
-	return FALSE;
-}
-
 void network_connection_callback(struct connline_context *context,
 					enum connline_event event,
 					char **properties,
@@ -61,10 +117,7 @@ void network_connection_callback(struct connline_context *context,
 	switch (event) {
 	case CONNLINE_EVENT_ERROR:
 		printf("Context became invalid\n");
-
-		connline_close(context);
-
-		g_timeout_add(0, cleanup_everything, loop);
+		g_main_loop_quit(loop);
 
 		break;
 	case CONNLINE_EVENT_DISCONNECTED:
@@ -87,14 +140,16 @@ void network_connection_callback(struct connline_context *context,
 int main( void )
 {
 	struct connline_context *cnx = NULL;
+	int err = EXIT_SUCCESS;
 	GMainLoop *loop = NULL;
+	int sig_hdl = -1;
 
 	loop = g_main_loop_new(NULL, FALSE);
 
 	if (connline_init(CONNLINE_EVENT_LOOP_GLIB, NULL) != 0)
 		goto error;
 
-	cnx = connline_new(CONNLINE_BEARER_ETHERNET);
+	cnx = connline_new(CONNLINE_BEARER_UNKNOWN);
 	if (cnx == NULL)
 		goto error;
 
@@ -107,14 +162,21 @@ int main( void )
 	if (connline_open(cnx, FALSE) != 0)
 		goto error;
 
+	sig_hdl = setul_signal_handler(loop);
+	if (sig_hdl < 0)
+		goto error;
+
 	g_main_loop_run(loop);
 
-	g_main_loop_unref(loop);
-
-	return EXIT_SUCCESS;
+	goto done;
 
 error:
 	printf("An error occured... exiting.\n");
+	err = EXIT_FAILURE;
+
+done:
+	if (sig_hdl >= 0)
+		g_source_remove(sig_hdl);
 
 	connline_close(cnx);
 	connline_cleanup();
@@ -122,6 +184,6 @@ error:
 	if (loop != NULL)
 		g_main_loop_unref(loop);
 
-	return EXIT_FAILURE;
+	return err;
 }
 
