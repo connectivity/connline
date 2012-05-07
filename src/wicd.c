@@ -364,9 +364,9 @@ out:
 static void wicd_connection_status_cb(DBusPendingCall *pending, void *user_data)
 {
 	struct connline_context *context = user_data;
+	DBusMessage *reply = NULL;
 	struct wicd_dbus *wicd;
 	DBusMessageIter arg;
-	DBusMessage *reply;
 	unsigned int state;
 	char **ip = NULL;
 	int len, ret;
