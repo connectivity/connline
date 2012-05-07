@@ -77,6 +77,7 @@ void network_connection_callback(struct connline_context *context,
 
 		for (prop = properties; *prop != NULL; prop++)
 			free(*prop);
+		free(properties);
 		break;
 	default:
 		break;
