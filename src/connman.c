@@ -209,6 +209,8 @@ static DBusHandlerResult notifier_release_method(DBusConnection *dbus_cnx,
 
 	__connline_call_error_callback(context);
 
+	dbus_message_unref(message);
+
 	return DBUS_HANDLER_RESULT_HANDLED;
 }
 
@@ -286,7 +288,7 @@ static DBusHandlerResult notifier_update_method(DBusConnection *dbus_cnx,
 	/* If application does not want to get notified
 	 * about the properties, then we forget about it */
 	if (context->property_callback == NULL)
-		return DBUS_HANDLER_RESULT_HANDLED;
+		goto done;
 
 	properties = NULL;
 
@@ -317,6 +319,9 @@ static DBusHandlerResult notifier_update_method(DBusConnection *dbus_cnx,
 
 	if (properties != NULL)
 		__connline_call_property_callback(context, properties);
+
+done:
+	dbus_message_unref(message);
 
 	return DBUS_HANDLER_RESULT_HANDLED;
 }
@@ -615,9 +620,11 @@ static int connman_close(struct connline_context *context)
 						connman->session_path,
 						CONNMAN_SESSION_INTERFACE,
 						"Destroy");
-			if (message != NULL)
+			if (message != NULL) {
 				dbus_connection_send(context->dbus_cnx,
 							message, NULL);
+				dbus_message_unref(message);
+			}
 		}
 
 		connman_backend_data_cleanup(context);
