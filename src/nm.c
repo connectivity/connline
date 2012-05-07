@@ -475,9 +475,9 @@ error:
 static void nm_state_cb(DBusPendingCall *pending, void *user_data)
 {
 	struct connline_context *context = user_data;
+	DBusMessage *reply = NULL;
 	DBusMessageIter arg;
 	struct nm_dbus *nm;
-	DBusMessage *reply;
 	unsigned int state;
 
 	if (dbus_pending_call_get_completed(pending) == FALSE)
