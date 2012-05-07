@@ -177,7 +177,7 @@ static gboolean timeout_handler_dispatch(gpointer data)
 
 	dbus_timeout_handle(to_handler->timeout);
 
-	return TRUE;
+	return FALSE;
 }
 
 static dbus_bool_t glib_dbus_timeout_add(DBusTimeout *timeout, void *data)
