@@ -31,7 +31,9 @@ def property_callback(ctx, event, properties, user_data):
 
 property_func = CALLBACK_PROTO(property_callback)
 
-connline_library = '../src/.libs/libconnline.so.0.0.0'
+connline_library = '../.libs/libconnline.so.0.0.0'
+
+global connline
 
 try:
     connline = cdll.LoadLibrary(connline_library)
@@ -39,7 +41,6 @@ except OSError, e:
     print e
     exit(-1)
 
-global connline
 print connline
 
 init = connline.connline_init(1)
