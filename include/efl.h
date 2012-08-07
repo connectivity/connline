@@ -21,7 +21,7 @@
 #ifndef __EFL_H__
 #define __EFL_H__
 
-#include <connline/private.h>
+#include <connline/data.h>
 
 DBusConnection *__connline_efl_setup_dbus_event_loop(void);
 

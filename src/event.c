@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include <connline/private.h>
+#include <connline/event.h>
 
 #ifdef CONNLINE_EVENT_GLIB
 #include <connline/glib_loop.h>

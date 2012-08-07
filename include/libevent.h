@@ -21,7 +21,7 @@
 #ifndef __LIBEVENT_H__
 #define __LIBEVENT_H__
 
-#include <connline/private.h>
+#include <connline/data.h>
 
 DBusConnection *__connline_libevent_setup_dbus_event_loop(void *data);
 

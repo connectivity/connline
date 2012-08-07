@@ -21,7 +21,7 @@
 #ifndef __GLIB_H__
 #define __GLIB_H__
 
-#include <connline/private.h>
+#include <connline/data.h>
 
 DBusConnection *__connline_glib_setup_dbus_event_loop(void);
 

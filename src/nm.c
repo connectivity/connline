@@ -20,7 +20,7 @@
 
 #include <connline/nm.h>
 
-#include <connline/private.h>
+#include <connline/data.h>
 #include <connline/event.h>
 #include <connline/dbus.h>
 #include <connline/utils.h>

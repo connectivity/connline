@@ -21,7 +21,7 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
-#include <connline/private.h>
+#include <connline/data.h>
 
 int __connline_setup_event_loop(enum connline_event_loop event_loop_type);
 

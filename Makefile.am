@@ -3,9 +3,9 @@ includedir = @includedir@/connline
 
 include_HEADERS = include/backend.h \
 		include/connline.h \
+		include/data.h \
 		include/dbus.h \
 		include/event.h \
-		include/private.h \
 		include/utils.h
 
 nodist_include_HEADERS = include/config.h

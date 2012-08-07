@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include <connline/private.h>
+#include <connline/backend.h>
 
 #ifdef CONNLINE_BACKEND_CONNMAN
 #include <connline/connman.h>

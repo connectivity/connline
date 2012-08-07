@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __PRIVATE_H__
-#define __PRIVATE_H__
+#ifndef __DATA_H__
+#define __DATA_H__
 
 #include <connline/connline.h>
 

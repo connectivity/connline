@@ -21,7 +21,7 @@
 #ifndef __BACKEND_H__
 #define __BACKEND_H__
 
-#include <connline/private.h>
+#include <connline/data.h>
 
 typedef int (*__connline_open_f) (struct connline_context *);
 typedef int (*__connline_close_f) (struct connline_context *);
