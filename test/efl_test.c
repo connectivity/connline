@@ -88,6 +88,8 @@ int main( void )
 {
 	struct connline_context *cnx = NULL;
 
+	ecore_init();
+
 	if (connline_init(CONNLINE_EVENT_LOOP_EFL, NULL) != 0)
 		goto error;
 
