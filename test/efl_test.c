@@ -106,6 +106,7 @@ int main( void )
 		goto error;
 
 	ecore_main_loop_begin();
+	ecore_shutdown();
 
 	return EXIT_SUCCESS;
 
@@ -114,6 +115,8 @@ error:
 
 	connline_close(cnx);
 	connline_cleanup();
+
+	ecore_shutdown();
 
 	return EXIT_FAILURE;
 }
