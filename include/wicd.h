@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __WICD_H__
-#define __WICD_H__
+#ifndef __CONNLINE_WICD_H__
+#define __CONNLINE_WICD_H__
 
 #include <connline/backend.h>
 

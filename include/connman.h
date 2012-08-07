@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __CONNMAN_H__
-#define __CONNMAN_H__
+#ifndef __CONNLINE_CONNMAN_H__
+#define __CONNLINE_CONNMAN_H__
 
 #include <connline/backend.h>
 

@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __GLIB_H__
-#define __GLIB_H__
+#ifndef __CONNLINE_GLIB_H__
+#define __CONNLINE_GLIB_H__
 
 #include <connline/data.h>
 

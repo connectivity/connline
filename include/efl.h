@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __EFL_H__
-#define __EFL_H__
+#ifndef __CONNLINE_EFL_H__
+#define __CONNLINE_EFL_H__
 
 #include <connline/data.h>
 

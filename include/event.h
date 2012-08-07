@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __EVENT_H__
-#define __EVENT_H__
+#ifndef __CONNLINE_EVENT_H__
+#define __CONNLINE_EVENT_H__
 
 #include <connline/data.h>
 

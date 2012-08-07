@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __NM_H__
-#define __NM_H__
+#ifndef __CONNLINE_NM_H__
+#define __CONNLINE_NM_H__
 
 #include <connline/backend.h>
 

@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __DATA_H__
-#define __DATA_H__
+#ifndef __CONNLINE_DATA_H__
+#define __CONNLINE_DATA_H__
 
 #include <connline/connline.h>
 

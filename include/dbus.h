@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __DBUS_H__
-#define __DBUS_H__
+#ifndef __CONNLINE_DBUS_H__
+#define __CONNLINE_DBUS_H__
 
 #include <dbus/dbus.h>
 

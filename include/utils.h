@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __UTILS_H__
-#define __UTILS_H__
+#ifndef __CONNLINE_UTILS_H__
+#define __CONNLINE_UTILS_H__
 
 #include <connline/connline.h>
 

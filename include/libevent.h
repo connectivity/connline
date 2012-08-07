@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef __LIBEVENT_H__
-#define __LIBEVENT_H__
+#ifndef __CONNLINE_LIBEVENT_H__
+#define __CONNLINE_LIBEVENT_H__
 
 #include <connline/data.h>
 
