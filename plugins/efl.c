@@ -17,12 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-
-#include <connline/efl.h>
-
+#include <connline/connline.h>
+#include <connline/data.h>
 #include <connline/utils.h>
 
+#include <errno.h>
+#include <dbus/dbus.h>
+#include <stdlib.h>
 #include <Ecore.h>
+
+const unsigned int connline_plugin_event_loop_type = CONNLINE_EVENT_LOOP_EFL;
 
 struct watch_handler {
 	Ecore_Fd_Handler *e_handler;
@@ -300,7 +304,7 @@ static void remove_context_triggers(void *data)
 	eina_hash_free(context_ht);
 }
 
-DBusConnection *__connline_efl_setup_dbus_event_loop(void)
+DBusConnection *connline_plugin_setup_event_loop(void)
 {
 	DBusConnection *dbus_cnx;
 
@@ -320,7 +324,7 @@ DBusConnection *__connline_efl_setup_dbus_event_loop(void)
 	return dbus_cnx;
 }
 
-int __connline_efl_trigger_callback(struct connline_context *context,
+int connline_plugin_trigger_callback(struct connline_context *context,
 						connline_callback_f callback,
 						enum connline_event event,
 						char **changed_property)
@@ -354,7 +358,7 @@ int __connline_efl_trigger_callback(struct connline_context *context,
 	return 0;
 }
 
-void __connline_efl_trigger_cleanup(struct connline_context *context)
+void connline_plugin_trigger_cleanup(struct connline_context *context)
 {
 	if (context == NULL)
 		return;
@@ -362,7 +366,7 @@ void __connline_efl_trigger_cleanup(struct connline_context *context)
 	eina_hash_del(triggers_table, context, NULL);
 }
 
-void __connline_efl_cleanup(DBusConnection *dbus_cnx)
+void connline_plugin_cleanup_event_loop(DBusConnection *dbus_cnx)
 {
 	if (triggers_table != NULL)
 		eina_hash_free(triggers_table);

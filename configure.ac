@@ -93,7 +93,6 @@ PKG_CHECK_MODULES(EFL, ecore, [], [enable_efl=no])
 AM_CONDITIONAL([CONNLINE_EVENT_EFL], [test "x$enable_efl" = "xyes"])
 if test "x$enable_efl" = "xyes"; then
 	CONNLINE_PKG_CONFIG_IN="$CONNLINE_PKG_CONFIG_IN ecore >= 1.0.0 eina >= 1.0.0"
-	AC_DEFINE(CONNLINE_EVENT_EFL, 1, [EFL event loop support])
 fi
 
 dnl Libevent support

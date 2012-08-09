@@ -11,7 +11,6 @@ include_HEADERS = include/backend.h \
 nodist_include_HEADERS = include/config.h
 
 noinst_HEADERS = include/connman.h \
-		include/efl.h \
 		include/libevent.h \
 		include/nm.h \
 		include/private.h \
@@ -57,9 +56,11 @@ plugins_glib_la_SOURCES = plugins/glib.c
 endif # CONNLINE_EVENT_GLIB
 
 if CONNLINE_EVENT_EFL
-libconnline_la_CPPFLAGS += $(EFL_CFLAGS)
-libconnline_la_LIBADD += $(EFL_LIBS)
-libconnline_la_SOURCES += src/efl.c
+plugin_LTLIBRARIES += plugins/efl.la
+plugin_objects += $(plugins_efl_la_OBJECTS)
+plugins_efl_la_CFLAGS = $(plugin_cflags) $(EFL_CFLAGS)
+plugins_efl_la_LDFLAGS = $(plugin_ldflags) $(EFL_LIBS)
+plugins_efl_la_SOURCES = plugins/efl.c
 endif # CONNLINE_EVENT_EFL
 
 if CONNLINE_EVENT_LIBEVENT
