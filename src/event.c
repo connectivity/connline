@@ -18,8 +18,6 @@
  *
  */
 
-#include <config.h>
-
 #include <connline/event.h>
 #include <connline/private.h>
 

@@ -8,12 +8,10 @@ include_HEADERS = include/backend.h \
 		include/event.h \
 		include/utils.h
 
-nodist_include_HEADERS = include/config.h
-
 noinst_HEADERS = include/private.h
 
-local_headers = $(foreach file,$(include_HEADERS) $(nodist_include_HEADERS) \
-			$(noinst_HEADERS), include/connline/$(notdir $(file)))
+local_headers = $(foreach file,$(include_HEADERS) $(noinst_HEADERS), \
+					include/connline/$(notdir $(file)))
 
 BUILT_SOURCES = $(local_headers)
 
@@ -127,10 +125,6 @@ endif # TEST
 pkgconfigdir = $(libdir)/pkgconfig
 
 pkgconfig_DATA = connline.pc
-
-include/connline/config.h: include/config.h
-	$(AM_V_at)$(MKDIR_P) include/connline
-	$(AM_V_GEN)$(LN_S) $(abs_top_builddir)/$< $@
 
 include/connline/%.h: $(abs_top_srcdir)/include/%.h
 		$(AM_V_at)$(MKDIR_P) include/connline
