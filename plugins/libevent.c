@@ -18,13 +18,18 @@
  *
  */
 
-#include <connline/libevent.h>
+#include <connline/connline.h>
+#include <connline/data.h>
 #include <connline/utils.h>
+
 #include <event2/event.h>
 #include <event2/util.h>
 #include <glib.h>
-
+#include <errno.h>
+#include <dbus/dbus.h>
 #include <stdlib.h>
+
+const unsigned int connline_plugin_event_loop_type = CONNLINE_EVENT_LOOP_LIBEVENT;
 
 struct watch_handler {
 	struct event *ev;
@@ -333,7 +338,7 @@ static void remove_context_triggers(gpointer data)
 	g_hash_table_destroy(context_ht);
 }
 
-DBusConnection *__connline_libevent_setup_dbus_event_loop(void *data)
+DBusConnection *connline_plugin_setup_event_loop(void *data)
 {
 	DBusConnection *dbus_cnx;
 
@@ -357,7 +362,7 @@ DBusConnection *__connline_libevent_setup_dbus_event_loop(void *data)
 	return dbus_cnx;
 }
 
-int __connline_libevent_trigger_callback(struct connline_context *context,
+int connline_plugin_trigger_callback(struct connline_context *context,
 						connline_callback_f callback,
 						enum connline_event event,
 						char **changed_property)
@@ -394,7 +399,7 @@ int __connline_libevent_trigger_callback(struct connline_context *context,
 	return 0;
 }
 
-void __connline_libevent_trigger_cleanup(struct connline_context *context)
+void connline_plugin_trigger_cleanup(struct connline_context *context)
 {
 	if (context == NULL)
 		return;
@@ -402,7 +407,7 @@ void __connline_libevent_trigger_cleanup(struct connline_context *context)
 	g_hash_table_remove(triggers_table, context);
 }
 
-void __connline_libevent_cleanup(DBusConnection *dbus_cnx)
+void connline_plugin_cleanup_event_loop(DBusConnection *dbus_cnx)
 {
 	if (triggers_table != NULL)
 		g_hash_table_destroy(triggers_table);

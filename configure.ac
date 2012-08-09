@@ -111,7 +111,6 @@ if test "x$enable_libevent" = "xyes"; then
 	AC_SUBST([LIBEVENT_LIBS], "$LIBEVENT_LIBS")
 
 	CONNLINE_PKG_CONFIG_IN="$CONNLINE_PKG_CONFIG_IN libevent >= 2.0"
-	AC_DEFINE(CONNLINE_EVENT_LIBEVENT, 1, [Libevent event loop support])
 fi
 
 AC_SUBST([CONNLINE_PKG_CONFIG_IN], "$CONNLINE_PKG_CONFIG_IN")
