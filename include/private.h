@@ -36,6 +36,8 @@ int __connline_setup_event_loop(enum connline_event_loop event_loop_type);
 
 DBusConnection *__connline_setup_dbus_event_loop(void *data);
 
+void __connline_cleanup_event_loop(DBusConnection *dbus_cnx);
+
 #include <connline/backend.h>
 
 struct connline_backend_plugin {

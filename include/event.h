@@ -39,8 +39,6 @@ int __connline_trigger_callback(struct connline_context *context,
 
 void __connline_trigger_cleanup(struct connline_context *context);
 
-void __connline_cleanup_event_loop(DBusConnection *dbus_cnx);
-
 static inline
 void __connline_call_error_callback(struct connline_context *context)
 {
