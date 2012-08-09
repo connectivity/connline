@@ -77,23 +77,15 @@ dnl # ########
 dnl Event loop
 dnl # ########
 
-CONNLINE_PKG_CONFIG_IN=""
-
 dnl Glib support
 AC_ARG_ENABLE([glib], [AS_HELP_STRING([--enable-glib], [Enable 'glib' event loop support])], [], [enable_glib=yes])
 PKG_CHECK_MODULES(GLIB, glib-2.0, [], [enable_glib=no])
 AM_CONDITIONAL([CONNLINE_EVENT_GLIB], [test "x$enable_glib" = "xyes"])
-if test "x$enable_glib" = "xyes"; then
-	CONNLINE_PKG_CONFIG_IN="$CONNLINE_PKG_CONFIG_IN glib-2.0 >= 2.0.0"
-fi
 
 dnl EFL support
 AC_ARG_ENABLE([efl], [AS_HELP_STRING([--enable-efl], [Enable 'efl' Ecore event loop support])], [], [enable_efl=yes])
 PKG_CHECK_MODULES(EFL, ecore, [], [enable_efl=no])
 AM_CONDITIONAL([CONNLINE_EVENT_EFL], [test "x$enable_efl" = "xyes"])
-if test "x$enable_efl" = "xyes"; then
-	CONNLINE_PKG_CONFIG_IN="$CONNLINE_PKG_CONFIG_IN ecore >= 1.0.0 eina >= 1.0.0"
-fi
 
 dnl Libevent support
 AC_ARG_ENABLE([libevent], [AS_HELP_STRING([--enable-libevent], [Enable 'libevent' event loop support])], [], [enable_libevent=yes])
@@ -109,11 +101,10 @@ if test "x$enable_libevent" = "xyes"; then
 
 	AC_SUBST([LIBEVENT_CFLAGS], "$LIBEVENT_CFLAGS")
 	AC_SUBST([LIBEVENT_LIBS], "$LIBEVENT_LIBS")
-
-	CONNLINE_PKG_CONFIG_IN="$CONNLINE_PKG_CONFIG_IN libevent >= 2.0"
 fi
 
-AC_SUBST([CONNLINE_PKG_CONFIG_IN], "$CONNLINE_PKG_CONFIG_IN")
+AC_SUBST([CONNLINE_PKG_CONFIG_LDFLAGS], "$DBUS_LIBS")
+AC_SUBST([CONNLINE_PKG_CONFIG_CFLAGS], "$DBUS_CFLAGS")
 
 
 dnl # ######

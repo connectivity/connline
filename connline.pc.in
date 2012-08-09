@@ -5,7 +5,8 @@ includedir=@includedir@
 
 Name: Connline
 Description: A connection daemon abstraction library.
-Requires: dbus-1 @CONNLINE_PKG_CONFIG_IN@
+Requires: dbus-1
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lconnline
-Cflags: -I${includedir}
+
+Libs: -L${libdir} -lconnline @CONNLINE_PKG_CONFIG_LDFLAGS@
+Cflags: -I${includedir} @CONNLINE_PKG_CONFIG_CFLAGS@
