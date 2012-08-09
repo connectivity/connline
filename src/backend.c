@@ -21,39 +21,30 @@
 #include <config.h>
 
 #include <connline/backend.h>
-
-#ifdef CONNLINE_BACKEND_CONNMAN
-#include <connline/connman.h>
-#endif
-
-#ifdef CONNLINE_BACKEND_NM
-#include <connline/nm.h>
-#endif
-
-#ifdef CONNLINE_BACKEND_WICD
-#include <connline/wicd.h>
-#endif
+#include <connline/private.h>
 
 #include <stdlib.h>
 
+static struct connline_backend_plugin *backend = NULL;
+
 struct connline_backend_methods *__connline_setup_backend(DBusConnection *dbus_cnx)
 {
-	struct connline_backend_methods *backend = NULL;
+	if (dbus_cnx == NULL)
+		return NULL;
 
-#ifdef CONNLINE_BACKEND_CONNMAN
-	backend = __connline_detect_connman(dbus_cnx);
-#endif
-
-#ifdef CONNLINE_BACKEND_NM
+	backend = __connline_load_backend_plugin(dbus_cnx);
 	if (backend == NULL)
-		backend = __connline_detect_nm(dbus_cnx);
-#endif
+		return NULL;
 
-#ifdef CONNLINE_BACKEND_WICD
-	if (backend == NULL)
-		backend = __connline_detect_wicd(dbus_cnx);
-#endif
-
-	return backend;
+	return backend->methods;
 }
 
+void __connline_cleanup_backend(void)
+{
+	if (backend == NULL)
+		return;
+
+	__connline_cleanup_backend_plugin(backend);
+
+	backend = NULL;
+}
