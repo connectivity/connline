@@ -21,78 +21,28 @@
 #include <config.h>
 
 #include <connline/event.h>
+#include <connline/private.h>
 
-#ifdef CONNLINE_EVENT_GLIB
-#include <connline/glib_loop.h>
-#endif
-
-#ifdef CONNLINE_EVENT_EFL
-#include <connline/efl.h>
-#endif
-
-#ifdef CONNLINE_EVENT_LIBEVENT
-#include <connline/libevent.h>
-#endif
-
-static enum connline_event_loop loop_type = CONNLINE_EVENT_LOOP_UNKNOWN;
+static struct connline_event_loop_plugin *event_loop = NULL;
 
 int __connline_setup_event_loop(enum connline_event_loop event_loop_type)
 {
-	if (loop_type != CONNLINE_EVENT_LOOP_UNKNOWN)
+	if (event_loop_type == CONNLINE_EVENT_LOOP_UNKNOWN)
 		return 0;
 
-	switch (event_loop_type)
-	{
-#ifdef CONNLINE_EVENT_GLIB
-	case CONNLINE_EVENT_LOOP_GLIB:
-		break;
-#endif
-#ifdef CONNLINE_EVENT_EFL
-	case CONNLINE_EVENT_LOOP_EFL:
-		break;
-#endif
-#ifdef CONNLINE_EVENT_LIBEVENT
-	case CONNLINE_EVENT_LOOP_LIBEVENT:
-		break;
-#endif
-	case CONNLINE_EVENT_LOOP_UNKNOWN:
-		/* Falling over */
-	default:
-		loop_type = CONNLINE_EVENT_LOOP_UNKNOWN;
+	event_loop = __connline_load_event_loop_plugin(event_loop_type);
+	if (event_loop == NULL)
 		return -EINVAL;
-	}
-
-	loop_type = event_loop_type;
 
 	return 0;
 }
 
 DBusConnection *__connline_setup_dbus_event_loop(void *data)
 {
-	DBusConnection *dbus_cnx = NULL;
+	if (event_loop == NULL)
+		return NULL;
 
-	switch (loop_type) {
-#ifdef CONNLINE_EVENT_GLIB
-	case CONNLINE_EVENT_LOOP_GLIB:
-		dbus_cnx = __connline_glib_setup_dbus_event_loop();
-		break;
-#endif
-#ifdef CONNLINE_EVENT_EFL
-	case CONNLINE_EVENT_LOOP_EFL:
-		dbus_cnx = __connline_efl_setup_dbus_event_loop();
-		break;
-#endif
-#ifdef CONNLINE_EVENT_LIBEVENT
-	case CONNLINE_EVENT_LOOP_LIBEVENT:
-		dbus_cnx = __connline_libevent_setup_dbus_event_loop(data);
-#endif
-	case CONNLINE_EVENT_LOOP_UNKNOWN:
-		/* Falling over */
-	default:
-		break;
-	}
-
-	return dbus_cnx;
+	return event_loop->setup_event_loop(data);
 }
 
 int __connline_trigger_callback(struct connline_context *context,
@@ -100,78 +50,30 @@ int __connline_trigger_callback(struct connline_context *context,
 					enum connline_event event,
 					char **changed_property)
 {
-	switch (loop_type) {
-#ifdef CONNLINE_EVENT_GLIB
-	case CONNLINE_EVENT_LOOP_GLIB:
-		return __connline_glib_trigger_callback(context,
-					callback, event, changed_property);
-#endif
-#ifdef CONNLINE_EVENT_EFL
-	case CONNLINE_EVENT_LOOP_EFL:
-		return __connline_efl_trigger_callback(context,
-					callback, event, changed_property);
-#endif
-#ifdef CONNLINE_EVENT_LIBEVENT
-	case CONNLINE_EVENT_LOOP_LIBEVENT:
-		return __connline_libevent_trigger_callback(context,
-					callback, event, changed_property);
-#endif
-	case CONNLINE_EVENT_LOOP_UNKNOWN:
-		/* Falling over */
-	default:
-		break;
-	}
+	if (event_loop == NULL)
+		return -EINVAL;
 
-	return -EINVAL;
+	return event_loop->trigger_callback(context,
+					callback, event, changed_property);
 }
 
 void __connline_trigger_cleanup(struct connline_context *context)
 {
-	switch (loop_type) {
-#ifdef CONNLINE_EVENT_GLIB
-	case CONNLINE_EVENT_LOOP_GLIB:
-		__connline_glib_trigger_cleanup(context);
-		break;
-#endif
-#ifdef CONNLINE_EVENT_EFL
-	case CONNLINE_EVENT_LOOP_EFL:
-		__connline_efl_trigger_cleanup(context);
-		break;
-#endif
-#ifdef CONNLINE_EVENT_LIBEVENT
-	case CONNLINE_EVENT_LOOP_LIBEVENT:
-		__connline_libevent_trigger_cleanup(context);
-		break;
-#endif
-	default:
-		break;
-	}
+	if (event_loop == NULL)
+		return;
+
+	event_loop->trigger_cleanup(context);
 }
 
 void __connline_cleanup_event_loop(DBusConnection *dbus_cnx)
 {
-	switch (loop_type) {
-#ifdef CONNLINE_EVENT_GLIB
-	case CONNLINE_EVENT_LOOP_GLIB:
-		__connline_glib_cleanup(dbus_cnx);
-		break;
-#endif
-#ifdef CONNLINE_EVENT_EFL
-	case CONNLINE_EVENT_LOOP_EFL:
-		__connline_efl_cleanup(dbus_cnx);
-		break;
-#endif
-#ifdef CONNLINE_EVENT_LIBEVENT
-	case CONNLINE_EVENT_LOOP_LIBEVENT:
-		__connline_libevent_cleanup(dbus_cnx);
-		break;
-#endif
-	case CONNLINE_EVENT_LOOP_UNKNOWN:
-		/* Falling over */
-	default:
-		break;
-	}
+	if (event_loop == NULL)
+		return;
 
-	loop_type = CONNLINE_EVENT_LOOP_UNKNOWN;
+	event_loop->cleanup_event_loop(dbus_cnx);
+
+	__connline_cleanup_event_plugin(event_loop);
+
+	event_loop = NULL;
 }
 
