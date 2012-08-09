@@ -131,9 +131,6 @@ AM_CONDITIONAL([CONNLINE_BACKEND_NM], [test "x$enable_nm" = "xyes"])
 dnl Wicd support
 AC_ARG_ENABLE([wicd], [AS_HELP_STRING([--enable-wicd], [Enable 'Wicd' backend])], [], [enable_wicd=no])
 AM_CONDITIONAL([CONNLINE_BACKEND_WICD], [test "x$enable_wicd" = "xyes"])
-if test "x$enable_wicd" = "xyes"; then
-	AC_DEFINE(CONNLINE_BACKEND_WICD, 1, [Wicd backend support])
-fi
 
 
 dnl # ###

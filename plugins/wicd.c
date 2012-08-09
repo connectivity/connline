@@ -18,12 +18,11 @@
  *
  */
 
-#include <connline/wicd.h>
-
 #include <connline/data.h>
 #include <connline/event.h>
 #include <connline/dbus.h>
 #include <connline/utils.h>
+#include <connline/backend.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -576,7 +575,7 @@ static struct connline_backend_methods wicd = {
 	wicd_get_bearer
 };
 
-struct connline_backend_methods *__connline_detect_wicd(DBusConnection *dbus_cnx)
+struct connline_backend_methods *connline_plugin_setup_backend(DBusConnection *dbus_cnx)
 {
 	if (connline_dbus_is_service_running(dbus_cnx, WICD_DBUS_NAME) == TRUE)
 		return &wicd;
