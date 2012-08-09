@@ -19,8 +19,7 @@
  */
 
 #include <connline/data.h>
-#include <connline/event.h>
-#include <connline/backend.h>
+#include <connline/private.h>
 
 #include <stdlib.h>
 #include <time.h>

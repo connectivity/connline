@@ -32,10 +32,6 @@ typedef void (*__connline_trigger_cleanup_f) (struct connline_context *);
 typedef void (*__connline_cleanup_event_loop_f) (DBusConnection *);
 
 
-int __connline_setup_event_loop(enum connline_event_loop event_loop_type);
-
-DBusConnection *__connline_setup_dbus_event_loop(void *data);
-
 int __connline_trigger_callback(struct connline_context *context,
 					connline_callback_f callback,
 					enum connline_event event,

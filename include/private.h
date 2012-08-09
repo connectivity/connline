@@ -32,6 +32,10 @@ struct connline_event_loop_plugin {
 	__connline_cleanup_event_loop_f cleanup_event_loop;
 };
 
+int __connline_setup_event_loop(enum connline_event_loop event_loop_type);
+
+DBusConnection *__connline_setup_dbus_event_loop(void *data);
+
 #include <connline/backend.h>
 
 struct connline_backend_plugin {
@@ -39,6 +43,8 @@ struct connline_backend_plugin {
 
 	struct connline_backend_methods *methods;
 };
+
+struct connline_backend_methods *__connline_setup_backend(DBusConnection *dbus_cnx);
 
 struct connline_event_loop_plugin *
 __connline_load_event_loop_plugin(enum connline_event_loop event_loop_type);
