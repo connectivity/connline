@@ -127,9 +127,6 @@ AM_CONDITIONAL([CONNLINE_BACKEND_CONNMAN], [test "x$enable_connman" = "xyes"])
 dnl NetworkManager support
 AC_ARG_ENABLE([nm], [AS_HELP_STRING([--enable-nm], [Enable 'Network Manager' backend])], [], [enable_nm=no])
 AM_CONDITIONAL([CONNLINE_BACKEND_NM], [test "x$enable_nm" = "xyes"])
-if test "x$enable_nm" = "xyes"; then
-	AC_DEFINE(CONNLINE_BACKEND_NM, 1, [NetworkManager backend support])
-fi
 
 dnl Wicd support
 AC_ARG_ENABLE([wicd], [AS_HELP_STRING([--enable-wicd], [Enable 'Wicd' backend])], [], [enable_wicd=no])

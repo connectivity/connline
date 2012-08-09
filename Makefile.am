@@ -10,8 +10,7 @@ include_HEADERS = include/backend.h \
 
 nodist_include_HEADERS = include/config.h
 
-noinst_HEADERS = include/nm.h \
-		include/private.h \
+noinst_HEADERS = include/private.h \
 		include/wicd.h
 
 local_headers = $(foreach file,$(include_HEADERS) $(nodist_include_HEADERS) \
@@ -78,7 +77,11 @@ plugins_connman_la_SOURCES = plugins/connman.c
 endif # CONNLINE_BACKEND_CONNMAN
 
 if CONNLINE_BACKEND_NM
-libconnline_la_SOURCES += src/nm.c
+plugin_LTLIBRARIES += plugins/nm.la
+plugin_objects += $(plugins_nm_la_OBJECTS)
+plugins_nm_la_CFLAGS = $(plugin_cflags)
+plugins_nm_la_LDFLAGS = $(plugin_ldflags)
+plugins_nm_la_SOURCES = plugins/nm.c
 endif # CONNLINE_BACKEND_NM
 
 if CONNLINE_BACKEND_WICD
