@@ -23,6 +23,15 @@
 
 #include <connline/data.h>
 
+typedef int (*__connline_setup_event_loop_f) (enum connline_event_loop);
+typedef int (*__connline_trigger_callback_f) (struct connline_context *,
+						connline_callback_f,
+						enum connline_event,
+						char **);
+typedef void (*__connline_trigger_cleanup_f) (struct connline_context *);
+typedef void (*__connline_cleanup_event_loop_f) (DBusConnection *);
+
+
 int __connline_setup_event_loop(enum connline_event_loop event_loop_type);
 
 DBusConnection *__connline_setup_dbus_event_loop(void *data);

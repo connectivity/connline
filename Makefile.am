@@ -15,6 +15,7 @@ noinst_HEADERS = include/connman.h \
 		include/glib_loop.h \
 		include/libevent.h \
 		include/nm.h \
+		include/private.h \
 		include/wicd.h
 
 local_headers = $(foreach file,$(include_HEADERS) $(nodist_include_HEADERS) \
@@ -27,14 +28,16 @@ CLEANFILES = $(BUILT_SOURCES)
 lib_LTLIBRARIES = libconnline.la
 
 libconnline_la_CPPFLAGS = -std=gnu99 -Wall -O2 -D_FORTIFY_SOURCE=2 \
-					$(DBUS_CFLAGS) $(DEV_CFLAGS)
+			-DCONNLINE_PLUGIN_DIR=\""$(libdir)/connline"\" \
+			$(DBUS_CFLAGS) $(DEV_CFLAGS)
 
-libconnline_la_LIBADD = $(DBUS_LIBS)
+libconnline_la_LIBADD = $(DBUS_LIBS) -ldl
 
 libconnline_la_SOURCES = src/backend.c \
 			src/connline.c \
 			src/dbus.c \
 			src/event.c \
+			src/plugin.c \
 			src/utils.c
 
 if CONNLINE_EVENT_GLIB

@@ -23,6 +23,8 @@
 
 #include <connline/data.h>
 
+typedef struct connline_backend_methods *(*__connline_setup_backend_f) (DBusConnection *);
+
 typedef int (*__connline_open_f) (struct connline_context *);
 typedef int (*__connline_close_f) (struct connline_context *);
 typedef enum connline_bearer (*__connline_get_bearer_f) (struct connline_context *);
