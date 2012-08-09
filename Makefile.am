@@ -10,8 +10,7 @@ include_HEADERS = include/backend.h \
 
 nodist_include_HEADERS = include/config.h
 
-noinst_HEADERS = include/connman.h \
-		include/nm.h \
+noinst_HEADERS = include/nm.h \
 		include/private.h \
 		include/wicd.h
 
@@ -71,7 +70,11 @@ plugins_libevent_la_SOURCES = plugins/libevent.c
 endif # CONNLINE_EVENT_LIBEVENT
 
 if CONNLINE_BACKEND_CONNMAN
-libconnline_la_SOURCES += src/connman.c
+plugin_LTLIBRARIES += plugins/connman.la
+plugin_objects += $(plugins_connman_la_OBJECTS)
+plugins_connman_la_CFLAGS = $(plugin_cflags)
+plugins_connman_la_LDFLAGS = $(plugin_ldflags)
+plugins_connman_la_SOURCES = plugins/connman.c
 endif # CONNLINE_BACKEND_CONNMAN
 
 if CONNLINE_BACKEND_NM

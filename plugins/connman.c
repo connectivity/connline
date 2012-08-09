@@ -18,13 +18,13 @@
  *
  */
 
-#include <connline/connman.h>
-
 #include <connline/data.h>
 #include <connline/event.h>
 #include <connline/utils.h>
 #include <connline/dbus.h>
+#include <connline/backend.h>
 
+#include <dbus/dbus.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -651,7 +651,7 @@ static struct connline_backend_methods connman = {
 	connman_get_bearer
 };
 
-struct connline_backend_methods *__connline_detect_connman(DBusConnection *dbus_cnx)
+struct connline_backend_methods *connline_plugin_setup_backend(DBusConnection *dbus_cnx)
 {
 	if (connline_dbus_is_service_running(dbus_cnx,
 						CONNMAN_DBUS_NAME) == TRUE)

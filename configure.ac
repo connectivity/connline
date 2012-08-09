@@ -123,9 +123,6 @@ dnl # ######
 dnl ConnMan support
 AC_ARG_ENABLE([connman], [AS_HELP_STRING([--enable-connman], [Enable 'ConnMan' backend])], [], [enable_connman=no])
 AM_CONDITIONAL([CONNLINE_BACKEND_CONNMAN], [test "x$enable_connman" = "xyes"])
-if test "x$enable_connman" = "xyes"; then
-	AC_DEFINE(CONNLINE_BACKEND_CONNMAN, 1, [ConnMan backend support])
-fi
 
 dnl NetworkManager support
 AC_ARG_ENABLE([nm], [AS_HELP_STRING([--enable-nm], [Enable 'Network Manager' backend])], [], [enable_nm=no])
