@@ -85,7 +85,6 @@ PKG_CHECK_MODULES(GLIB, glib-2.0, [], [enable_glib=no])
 AM_CONDITIONAL([CONNLINE_EVENT_GLIB], [test "x$enable_glib" = "xyes"])
 if test "x$enable_glib" = "xyes"; then
 	CONNLINE_PKG_CONFIG_IN="$CONNLINE_PKG_CONFIG_IN glib-2.0 >= 2.0.0"
-	AC_DEFINE(CONNLINE_EVENT_GLIB, 1, [Glib event loop support])
 fi
 
 dnl EFL support

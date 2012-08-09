@@ -12,7 +12,6 @@ nodist_include_HEADERS = include/config.h
 
 noinst_HEADERS = include/connman.h \
 		include/efl.h \
-		include/glib_loop.h \
 		include/libevent.h \
 		include/nm.h \
 		include/private.h \
@@ -40,10 +39,21 @@ libconnline_la_SOURCES = src/backend.c \
 			src/plugin.c \
 			src/utils.c
 
+plugin_LTLIBRARIES =
+plugin_objects =
+plugindir = $(libdir)/connline
+
+plugin_cflags = -std=gnu99 -Wall -O2 -D_FORTIFY_SOURCE=2 \
+				$(DBUS_CFLAGS) $(DEV_CFLAGS)
+
+plugin_ldflags = -no-undefined -module -avoid-version $(DBUS_LIBS)
+
 if CONNLINE_EVENT_GLIB
-libconnline_la_CPPFLAGS += $(GLIB_CFLAGS)
-libconnline_la_LIBADD += $(GLIB_LIBS)
-libconnline_la_SOURCES += src/glib.c
+plugin_LTLIBRARIES += plugins/glib.la
+plugin_objects += $(plugins_glib_la_OBJECTS)
+plugins_glib_la_CFLAGS = $(plugin_cflags) $(GLIB_CFLAGS)
+plugins_glib_la_LDFLAGS = $(plugin_ldflags) $(GLIB_LIBS)
+plugins_glib_la_SOURCES = plugins/glib.c
 endif # CONNLINE_EVENT_GLIB
 
 if CONNLINE_EVENT_EFL
@@ -53,8 +63,8 @@ libconnline_la_SOURCES += src/efl.c
 endif # CONNLINE_EVENT_EFL
 
 if CONNLINE_EVENT_LIBEVENT
-libconnline_la_CPPFLAGS += $(LIBEVENT_CFLAGS)
-libconnline_la_LIBADD += $(LIBEVENT_LIBS)
+libconnline_la_CPPFLAGS += $(LIBEVENT_CFLAGS) $(GLIB_CFLAGS)
+libconnline_la_LIBADD += $(LIBEVENT_LIBS) $(GLIB_LIBS)
 libconnline_la_SOURCES += src/libevent.c
 endif # CONNLINE_EVENT_LIBEVENT
 
