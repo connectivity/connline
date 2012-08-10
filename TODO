@@ -1,4 +1,3 @@
 - Add debug output in debug mode
-- Split the backends/event support into automatic loadable plugins to the main library
 - Make libevent support independent from glib
 - Add libev support
