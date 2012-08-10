@@ -17,10 +17,19 @@ BUILT_SOURCES = $(local_headers)
 
 CLEANFILES = $(BUILT_SOURCES)
 
+plugindir = $(libdir)/connline
+
+if MAINTAINER_MODE
+build_plugindir = $(abs_top_srcdir)/plugins/.libs
+else
+build_plugindir = $(plugindir)
+endif # MAINTAINER_MODE
+
+
 lib_LTLIBRARIES = libconnline.la
 
 libconnline_la_CPPFLAGS = -std=gnu99 -Wall -O2 -D_FORTIFY_SOURCE=2 \
-			-DCONNLINE_PLUGIN_DIR=\""$(libdir)/connline"\" \
+			-DCONNLINE_PLUGIN_DIR=\""$(build_plugindir)"\" \
 			$(DBUS_CFLAGS) $(DEV_CFLAGS)
 
 libconnline_la_LIBADD = $(DBUS_LIBS) -ldl
@@ -34,7 +43,6 @@ libconnline_la_SOURCES = src/backend.c \
 
 plugin_LTLIBRARIES =
 plugin_objects =
-plugindir = $(libdir)/connline
 
 plugin_cflags = -std=gnu99 -Wall -O2 -D_FORTIFY_SOURCE=2 \
 				$(DBUS_CFLAGS) $(DEV_CFLAGS)
