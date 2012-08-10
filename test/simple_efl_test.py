@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from ctypes import cdll, c_void_p, c_int, c_char_p, POINTER, CFUNCTYPE
+from ctypes import CDLL, c_void_p, c_int, c_char_p, POINTER, CFUNCTYPE, RTLD_GLOBAL
 from ctypes.util import find_library
 from sys import exit
 
@@ -37,7 +37,7 @@ connline_library = '../.libs/libconnline.so.0.0.0'
 global connline
 
 try:
-    connline = cdll.LoadLibrary(connline_library)
+    connline = CDLL(connline_library, mode=RTLD_GLOBAL)
 except OSError, e:
     print e
     exit(-1)
