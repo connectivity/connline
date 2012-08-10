@@ -23,7 +23,7 @@
 
 #include <connline/data.h>
 
-typedef int (*__connline_setup_event_loop_f) (void *);
+typedef DBusConnection *(*__connline_setup_event_loop_f) (void *);
 typedef int (*__connline_trigger_callback_f) (struct connline_context *,
 						connline_callback_f,
 						enum connline_event,
