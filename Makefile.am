@@ -28,7 +28,7 @@ endif # MAINTAINER_MODE
 
 lib_LTLIBRARIES = libconnline.la
 
-libconnline_la_CPPFLAGS = -std=gnu99 -Wall -O2 -D_FORTIFY_SOURCE=2 \
+libconnline_la_CPPFLAGS = -std=gnu99 -Wall -Werror -O2 -D_FORTIFY_SOURCE=2 \
 			-DCONNLINE_PLUGIN_DIR=\""$(build_plugindir)"\" \
 			$(DBUS_CFLAGS) $(DEV_CFLAGS)
 
