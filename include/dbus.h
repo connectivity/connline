@@ -22,6 +22,7 @@
 #define __CONNLINE_DBUS_H__
 
 #include <dbus/dbus.h>
+#include <stdbool.h>
 
 #ifndef DBUS_TIMEOUT_USE_DEFAULT
 	#define DBUS_TIMEOUT_USE_DEFAULT (-1)
@@ -41,6 +42,16 @@ enum connline_dbus_entry {
 
 typedef void (*connline_dbus_property_f) (DBusMessageIter *iter,
 							void *user_data);
+typedef bool (*connline_dbus_foreach_callback_f) (DBusMessageIter *iter,
+							void *user_data);
+
+static inline
+bool connline_dbus_open_dict(DBusMessageIter *iter, DBusMessageIter *dict) {
+	return dbus_message_iter_open_container(iter, DBUS_TYPE_ARRAY,
+			DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
+			DBUS_TYPE_STRING_AS_STRING DBUS_TYPE_VARIANT_AS_STRING
+			DBUS_DICT_ENTRY_END_CHAR_AS_STRING, dict);
+}
 
 void connline_dbus_append_dict(DBusMessageIter *iter,
 				const char *key_name,
@@ -122,7 +133,7 @@ int connline_dbus_get_basic(DBusMessageIter *iter,
 					int dbus_type,
 					void *destination);
 
-int connline_dbu_get_basic_variant(DBusMessageIter *iter,
+int connline_dbus_get_basic_variant(DBusMessageIter *iter,
 						int dbus_type,
 						void *destination);
 
@@ -134,6 +145,11 @@ int connline_dbus_get_array(DBusMessageIter *iter,
 int connline_dbus_get_fixed_array(DBusMessageIter *iter,
 					int *length,
 					void *destination);
+
+
+int connline_dbus_foreach_dict_entry(DBusMessageIter *iter,
+				connline_dbus_foreach_callback_f callback,
+				void *user_data);
 
 
 /* Use preferably the inline functions below this one */
@@ -262,5 +278,4 @@ void connline_dbus_remove_watch(DBusConnection *dbus_cnx,
 					DBusHandleMessageFunction filter,
 					void *user_data);
 
-#endif
-
+#endif /* __CONNLINE_DBUS_H__ */

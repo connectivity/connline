@@ -284,7 +284,7 @@ int connline_dbus_get_array(DBusMessageIter *iter,
 					int *length,
 					void *destination)
 {
-	DBusMessageIter array;
+	DBusMessageIter variant, array;
 	void **value_array = NULL;
 	int iteration;
 	int arg_type;
@@ -314,9 +314,15 @@ int connline_dbus_get_array(DBusMessageIter *iter,
 	}
 
 	*length = 0;
-	iteration = - 1;
+	iteration = 0;
+	*((void **) destination) = NULL;
 
-	dbus_message_iter_recurse(iter, &array);
+	arg_type = dbus_message_iter_get_arg_type(iter);
+	if (arg_type == DBUS_TYPE_VARIANT) {
+		dbus_message_iter_recurse(iter, &variant);
+		dbus_message_iter_recurse(&variant, &array);
+	} else
+		dbus_message_iter_recurse(iter, &array);
 
 	arg_type = dbus_message_iter_get_arg_type(&array);
 	while (arg_type != DBUS_TYPE_INVALID) {
@@ -332,19 +338,23 @@ int connline_dbus_get_array(DBusMessageIter *iter,
 
 		if (arg_type == DBUS_TYPE_VARIANT) {
 			if (connline_dbus_get_basic_variant(&array, dbus_type,
-						&value_array[iteration]) != 0)
+					&value_array[iteration-1]) != 0)
 				goto error;
 		} else
 			dbus_message_iter_get_basic(&array,
-						&value_array[iteration]);
+						&value_array[iteration-1]);
 
 		dbus_message_iter_next(&array);
 
 		arg_type = dbus_message_iter_get_arg_type(&array);
 	}
 
+	if (iteration > 0) {
+		value_array[iteration] = NULL;
+		*length = iteration - 1;
+	}
+
 	*((void **) destination) = value_array;
-	*length = iteration + 1;
 
 	return 0;
 
@@ -407,19 +417,12 @@ static int connline_dbus_get(DBusMessageIter *iter,
 	return -EINVAL;
 }
 
-int connline_dbus_get_dict_entry(DBusMessageIter *iter,
-					const char *key_name,
-					enum connline_dbus_entry entry_type,
-					int dbus_type,
-					int *length,
-					void *destination)
+int connline_dbus_foreach_dict_entry(DBusMessageIter *iter,
+				connline_dbus_foreach_callback_f callback,
+				void *user_data)
 {
-	DBusMessageIter array, dict_entry, dict_value;
-	const char *name;
+	DBusMessageIter array, dict_entry;
 	int arg_type;
-
-	if (key_name == NULL)
-		return -EINVAL;
 
 	arg_type = dbus_message_iter_get_arg_type(iter);
 	if (arg_type != DBUS_TYPE_ARRAY)
@@ -431,29 +434,71 @@ int connline_dbus_get_dict_entry(DBusMessageIter *iter,
 	dbus_message_iter_recurse(iter, &array);
 
 	arg_type = dbus_message_iter_get_arg_type(&array);
-
 	while (arg_type != DBUS_TYPE_INVALID) {
 		if (arg_type != DBUS_TYPE_DICT_ENTRY)
 			return -EINVAL;
 
 		dbus_message_iter_recurse(&array, &dict_entry);
-		dbus_message_iter_get_basic(&dict_entry, &name);
 
-		if (strncmp(key_name, name, strlen(name)) != 0) {
-			dbus_message_iter_next(&array);
-			arg_type = dbus_message_iter_get_arg_type(&array);
+		if (callback(&dict_entry, user_data) == TRUE)
+			return 0;
 
-			continue;
-		}
-
-		dbus_message_iter_next(&dict_entry);
-		dbus_message_iter_recurse(&dict_entry, &dict_value);
-
-		return connline_dbus_get(&dict_value, entry_type,
-					dbus_type, length, destination);
+		dbus_message_iter_next(&array);
+		arg_type = dbus_message_iter_get_arg_type(&array);
 	}
 
 	return -EINVAL;
+}
+
+struct dict_entry_parameters {
+	const char *key_name;
+	enum connline_dbus_entry entry_type;
+	int dbus_type;
+	int *length;
+	void *destination;
+};
+
+static bool get_dict_entry_cb(DBusMessageIter *iter, void *user_data)
+{
+	struct dict_entry_parameters *param = user_data;
+	DBusMessageIter dict_value;
+	char *name;
+
+	dbus_message_iter_get_basic(iter, &name);
+
+	if (strncmp(param->key_name, name, strlen(param->key_name)) == 0) {
+		dbus_message_iter_next(iter);
+		dbus_message_iter_recurse(iter, &dict_value);
+
+		connline_dbus_get(&dict_value, param->entry_type,
+			param->dbus_type, param->length, param->destination);
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+int connline_dbus_get_dict_entry(DBusMessageIter *iter,
+					const char *key_name,
+					enum connline_dbus_entry entry_type,
+					int dbus_type,
+					int *length,
+					void *destination)
+{
+	struct dict_entry_parameters param;
+
+	if (key_name == NULL)
+		return -EINVAL;
+
+	param.key_name = key_name;
+	param.entry_type = entry_type;
+	param.dbus_type = dbus_type;
+	param.length = length;
+	param.destination = destination;
+
+	return connline_dbus_foreach_dict_entry(iter,
+						get_dict_entry_cb, &param);
 }
 
 int connline_dbus_get_struct_entry(DBusMessageIter *iter,
@@ -478,7 +523,8 @@ int connline_dbus_get_struct_entry(DBusMessageIter *iter,
 	while (arg_type != DBUS_TYPE_INVALID) {
 		if (position != current) {
 			dbus_message_iter_next(&struct_entry);
-			arg_type = dbus_message_iter_get_arg_type(&struct_entry);
+			arg_type =
+				dbus_message_iter_get_arg_type(&struct_entry);
 
 			current++;
 
@@ -532,4 +578,3 @@ void connline_dbus_remove_watch(DBusConnection *dbus_cnx,
 
 	dbus_connection_remove_filter(dbus_cnx, filter, user_data);
 }
-
