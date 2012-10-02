@@ -1,4 +1,6 @@
 
+AM_MAKEFLAGS = --no-print-directory
+
 includedir = @includedir@/connline
 
 include_HEADERS = include/backend.h \
