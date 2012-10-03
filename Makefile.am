@@ -30,7 +30,8 @@ endif # MAINTAINER_MODE
 
 lib_LTLIBRARIES = libconnline.la
 
-libconnline_la_CPPFLAGS = -std=gnu99 -Wall -Werror -O2 -D_FORTIFY_SOURCE=2 \
+libconnline_la_CPPFLAGS = -std=gnu99 -Wall -Werror -O2 \
+			-U_FORTIFY_SOURCE  -D_FORTIFY_SOURCE=2 \
 			-DCONNLINE_PLUGIN_DIR=\""$(build_plugindir)"\" \
 			$(DBUS_CFLAGS) $(DEV_CFLAGS)
 
@@ -46,7 +47,7 @@ libconnline_la_SOURCES = src/backend.c \
 plugin_LTLIBRARIES =
 plugin_objects =
 
-plugin_cflags = -std=gnu99 -Wall -O2 -D_FORTIFY_SOURCE=2 \
+plugin_cflags = -std=gnu99 -Wall -O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
 				$(DBUS_CFLAGS) $(DEV_CFLAGS)
 
 plugin_ldflags = -no-undefined -module -avoid-version $(DBUS_LIBS)
@@ -101,7 +102,7 @@ endif # CONNLINE_BACKEND_WICD
 
 if TEST
 
-test_cflags = -std=gnu99 -Wall -O2 -D_FORTIFY_SOURCE=2 \
+test_cflags = -std=gnu99 -Wall -O2 -U_FORTIFY_SOURCE  -D_FORTIFY_SOURCE=2 \
 				$(DBUS_CFLAGS) $(DEV_CFLAGS)
 
 noinst_PROGRAMS =
