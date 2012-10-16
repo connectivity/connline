@@ -59,7 +59,7 @@ static gboolean signal_handler(GIOChannel *channel,
 	return TRUE;
 }
 
-static unsigned int setul_signal_handler(GMainLoop *loop)
+static unsigned int setup_signal_handler(GMainLoop *loop)
 {
 	GIOChannel *channel;
 	unsigned int source;
@@ -162,7 +162,7 @@ int main( void )
 	if (connline_open(cnx, FALSE) != 0)
 		goto error;
 
-	sig_hdl = setul_signal_handler(loop);
+	sig_hdl = setup_signal_handler(loop);
 	if (sig_hdl < 0)
 		goto error;
 
