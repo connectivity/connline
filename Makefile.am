@@ -55,51 +55,51 @@ plugin_cflags = -std=gnu99 -Wall -O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
 plugin_ldflags = -no-undefined -module -avoid-version $(DBUS_LIBS)
 
 if CONNLINE_EVENT_GLIB
-plugin_LTLIBRARIES += plugins/glib.la
-plugin_objects += $(plugins_glib_la_OBJECTS)
-plugins_glib_la_CFLAGS = $(plugin_cflags) $(GLIB_CFLAGS)
-plugins_glib_la_LDFLAGS = $(plugin_ldflags) $(GLIB_LIBS)
-plugins_glib_la_SOURCES = plugins/glib.c
+plugin_LTLIBRARIES += plugins/event_glib.la
+plugin_objects += $(plugins_event_glib_la_OBJECTS)
+plugins_event_glib_la_CFLAGS = $(plugin_cflags) $(GLIB_CFLAGS)
+plugins_event_glib_la_LDFLAGS = $(plugin_ldflags) $(GLIB_LIBS)
+plugins_event_glib_la_SOURCES = plugins/glib.c
 endif # CONNLINE_EVENT_GLIB
 
 if CONNLINE_EVENT_EFL
-plugin_LTLIBRARIES += plugins/efl.la
-plugin_objects += $(plugins_efl_la_OBJECTS)
-plugins_efl_la_CFLAGS = $(plugin_cflags) $(EFL_CFLAGS)
-plugins_efl_la_LDFLAGS = $(plugin_ldflags) $(EFL_LIBS)
-plugins_efl_la_SOURCES = plugins/efl.c
+plugin_LTLIBRARIES += plugins/event_efl.la
+plugin_objects += $(plugins_event_efl_la_OBJECTS)
+plugins_event_efl_la_CFLAGS = $(plugin_cflags) $(EFL_CFLAGS)
+plugins_event_efl_la_LDFLAGS = $(plugin_ldflags) $(EFL_LIBS)
+plugins_event_efl_la_SOURCES = plugins/efl.c
 endif # CONNLINE_EVENT_EFL
 
 if CONNLINE_EVENT_LIBEVENT
-plugin_LTLIBRARIES += plugins/libevent.la
-plugin_objects += $(plugins_libevent_la_OBJECTS)
-plugins_libevent_la_CFLAGS = $(plugin_cflags) $(LIBEVENT_CFLAGS) $(GLIB_CFLAGS)
-plugins_libevent_la_LDFLAGS = $(plugin_ldflags) $(LIBEVENT_LIBS) $(GLIB_LIBS)
-plugins_libevent_la_SOURCES = plugins/libevent.c
+plugin_LTLIBRARIES += plugins/event_libevent.la
+plugin_objects += $(plugins_event_libevent_la_OBJECTS)
+plugins_event_libevent_la_CFLAGS = $(plugin_cflags) $(LIBEVENT_CFLAGS) $(GLIB_CFLAGS)
+plugins_event_libevent_la_LDFLAGS = $(plugin_ldflags) $(LIBEVENT_LIBS) $(GLIB_LIBS)
+plugins_event_libevent_la_SOURCES = plugins/libevent.c
 endif # CONNLINE_EVENT_LIBEVENT
 
 if CONNLINE_BACKEND_CONNMAN
-plugin_LTLIBRARIES += plugins/connman.la
-plugin_objects += $(plugins_connman_la_OBJECTS)
-plugins_connman_la_CFLAGS = $(plugin_cflags)
-plugins_connman_la_LDFLAGS = $(plugin_ldflags)
-plugins_connman_la_SOURCES = plugins/connman.c
+plugin_LTLIBRARIES += plugins/backend_connman.la
+plugin_objects += $(plugins_backend_connman_la_OBJECTS)
+plugins_backend_connman_la_CFLAGS = $(plugin_cflags)
+plugins_backend_connman_la_LDFLAGS = $(plugin_ldflags)
+plugins_backend_connman_la_SOURCES = plugins/connman.c
 endif # CONNLINE_BACKEND_CONNMAN
 
 if CONNLINE_BACKEND_NM
-plugin_LTLIBRARIES += plugins/nm.la
-plugin_objects += $(plugins_nm_la_OBJECTS)
-plugins_nm_la_CFLAGS = $(plugin_cflags)
-plugins_nm_la_LDFLAGS = $(plugin_ldflags)
-plugins_nm_la_SOURCES = plugins/nm.c
+plugin_LTLIBRARIES += plugins/backend_nm.la
+plugin_objects += $(plugins_backend_nm_la_OBJECTS)
+plugins_backend_nm_la_CFLAGS = $(plugin_cflags)
+plugins_backend_nm_la_LDFLAGS = $(plugin_ldflags)
+plugins_backend_nm_la_SOURCES = plugins/nm.c
 endif # CONNLINE_BACKEND_NM
 
 if CONNLINE_BACKEND_WICD
-plugin_LTLIBRARIES += plugins/wicd.la
-plugin_objects += $(plugins_wicd_la_OBJECTS)
-plugins_wicd_la_CFLAGS = $(plugin_cflags)
-plugins_wicd_la_LDFLAGS = $(plugin_ldflags)
-plugins_wicd_la_SOURCES = plugins/wicd.c
+plugin_LTLIBRARIES += plugins/backend_wicd.la
+plugin_objects += $(plugins_backend_wicd_la_OBJECTS)
+plugins_backend_wicd_la_CFLAGS = $(plugin_cflags)
+plugins_backend_wicd_la_LDFLAGS = $(plugin_ldflags)
+plugins_backend_wicd_la_SOURCES = plugins/wicd.c
 endif # CONNLINE_BACKEND_WICD
 
 if TEST
