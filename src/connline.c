@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-static struct connline_backend_methods *connection_backend = NULL;
 static DBusConnection *dbus_cnx = NULL;
 static dlist *contexts_list = NULL;
 

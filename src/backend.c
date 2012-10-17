@@ -25,6 +25,13 @@
 
 static struct connline_backend_plugin *backend = NULL;
 
+struct connline_backend_methods *connection_backend = NULL;
+
+void connline_backend_unusable(void)
+{
+	connection_backend = NULL;
+}
+
 struct connline_backend_methods *__connline_setup_backend(DBusConnection *dbus_cnx)
 {
 	if (dbus_cnx == NULL)
@@ -34,7 +41,9 @@ struct connline_backend_methods *__connline_setup_backend(DBusConnection *dbus_c
 	if (backend == NULL)
 		return NULL;
 
-	return backend->methods;
+	connection_backend = backend->methods;
+
+	return connection_backend;
 }
 
 void __connline_cleanup_backend(void)

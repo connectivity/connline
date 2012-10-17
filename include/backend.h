@@ -33,7 +33,11 @@ struct connline_backend_methods {
 	__connline_get_bearer_f __connline_get_bearer;
 };
 
+extern struct connline_backend_methods *connection_backend;
+
 typedef struct connline_backend_methods *(*__connline_setup_backend_f) (DBusConnection *);
+
+void connline_backend_unusable(void);
 
 #endif
 
