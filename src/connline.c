@@ -19,6 +19,7 @@
  */
 
 #include <connline/data.h>
+#include <connline/list.h>
 #include <connline/private.h>
 
 #include <stdlib.h>
@@ -26,6 +27,7 @@
 
 static struct connline_backend_methods *connection_backend = NULL;
 static DBusConnection *dbus_cnx = NULL;
+static dlist *contexts_list = NULL;
 
 static inline bool is_connline_initialized(void)
 {
@@ -62,10 +64,19 @@ int connline_init(enum connline_event_loop event_loop_type, void *data)
 struct connline_context *connline_new(unsigned int bearer_type)
 {
 	struct connline_context *context;
+	dlist *new_list;
 
 	context = calloc(1, sizeof(struct connline_context));
 	if (context == NULL)
 		return NULL;
+
+	new_list = dlist_prepend(contexts_list, context);
+	if (new_list == contexts_list) {
+		free(context);
+		return NULL;
+	}
+
+	contexts_list = new_list;
 
 	context->dbus_cnx = dbus_connection_ref(dbus_cnx);
 	context->bearer_type = bearer_type;
@@ -152,7 +163,7 @@ bool connline_is_online(struct connline_context *context)
 	return context->is_online;
 }
 
-void connline_close(struct connline_context *context)
+static inline void __backend_close(struct connline_context *context)
 {
 	__connline_close_f __connline_close;
 
@@ -160,11 +171,20 @@ void connline_close(struct connline_context *context)
 		return;
 
 	__connline_close = connection_backend->__connline_close;
-
 	if (__connline_close != NULL)
 		__connline_close(context);
 
 	dbus_connection_unref(context->dbus_cnx);
+}
+
+void connline_close(struct connline_context *context)
+{
+	if (context == NULL || is_connline_initialized() == FALSE)
+		return;
+
+	__backend_close(context);
+
+	contexts_list = dlist_remove(contexts_list, context);
 
 	free(context);
 }
@@ -184,8 +204,21 @@ enum connline_bearer connline_get_bearer(struct connline_context *context)
 	return __connline_get_bearer(context);
 }
 
+static void __cleanup_context(void *data)
+{
+	struct connline_context *context = data;
+
+	__backend_close(context);
+
+	free(context);
+}
+
 void connline_cleanup(void)
 {
+	dlist_foreach(contexts_list, __cleanup_context);
+	dlist_free_all(contexts_list);
+	contexts_list = NULL;
+
 	__connline_cleanup_event_loop(dbus_cnx);
 
 	if (dbus_cnx != NULL)
