@@ -8,6 +8,7 @@ include_HEADERS = include/backend.h \
 		include/data.h \
 		include/dbus.h \
 		include/event.h \
+		include/list.h \
 		include/utils.h
 
 noinst_HEADERS = include/private.h
@@ -41,6 +42,7 @@ src_libconnline_la_SOURCES = src/backend.c \
 			src/connline.c \
 			src/dbus.c \
 			src/event.c \
+			src/list.c \
 			src/plugin.c \
 			src/utils.c
 
