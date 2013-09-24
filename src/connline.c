@@ -27,13 +27,12 @@
 static struct connline_backend_methods *connection_backend = NULL;
 static DBusConnection *dbus_cnx = NULL;
 
-static inline
-bool is_connline_initialized(void)
+static inline bool is_connline_initialized(void)
 {
 	if (connection_backend == NULL)
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 int connline_init(enum connline_event_loop event_loop_type, void *data)
@@ -133,7 +132,7 @@ int connline_open(struct connline_context *context,
 {
 	__connline_open_f __connline_open;
 
-	if (context == NULL || is_connline_initialized() == FALSE)
+	if (context == NULL || is_connline_initialized() == false)
 		return -EINVAL;
 
 	context->background_connection = background_connection;
@@ -148,7 +147,7 @@ int connline_open(struct connline_context *context,
 bool connline_is_online(struct connline_context *context)
 {
 	if (context == NULL)
-		return FALSE;
+		return false;
 
 	return context->is_online;
 }
@@ -157,7 +156,7 @@ void connline_close(struct connline_context *context)
 {
 	__connline_close_f __connline_close;
 
-	if (context == NULL || is_connline_initialized() == FALSE)
+	if (context == NULL || is_connline_initialized() == false)
 		return;
 
 	__connline_close = connection_backend->__connline_close;
@@ -174,7 +173,7 @@ enum connline_bearer connline_get_bearer(struct connline_context *context)
 {
 	__connline_get_bearer_f __connline_get_bearer;
 
-	if (context == NULL || is_connline_initialized() == FALSE)
+	if (context == NULL || is_connline_initialized() == false)
 		return CONNLINE_BEARER_UNKNOWN;
 
 	__connline_get_bearer = connection_backend->__connline_get_bearer;

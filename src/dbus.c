@@ -440,7 +440,7 @@ int connline_dbus_foreach_dict_entry(DBusMessageIter *iter,
 
 		dbus_message_iter_recurse(&array, &dict_entry);
 
-		if (callback(&dict_entry, user_data) == TRUE)
+		if (callback(&dict_entry, user_data) == true)
 			return 0;
 
 		dbus_message_iter_next(&array);
@@ -473,10 +473,10 @@ static bool get_dict_entry_cb(DBusMessageIter *iter, void *user_data)
 		connline_dbus_get(&dict_value, param->entry_type,
 			param->dbus_type, param->length, param->destination);
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 int connline_dbus_get_dict_entry(DBusMessageIter *iter,
