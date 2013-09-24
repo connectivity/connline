@@ -28,16 +28,16 @@ build_plugindir = $(plugindir)
 endif # MAINTAINER_MODE
 
 
-lib_LTLIBRARIES = libconnline.la
+lib_LTLIBRARIES = src/libconnline.la
 
-libconnline_la_CPPFLAGS = -std=gnu99 -Wall -Werror -O2 \
+src_libconnline_la_CPPFLAGS = -std=gnu99 -Wall -Werror -O2 \
 			-U_FORTIFY_SOURCE  -D_FORTIFY_SOURCE=2 \
 			-DCONNLINE_PLUGIN_DIR=\""$(build_plugindir)"\" \
 			$(DBUS_CFLAGS) $(DEV_CFLAGS)
 
-libconnline_la_LIBADD = $(DBUS_LIBS) -ldl
+src_libconnline_la_LIBADD = $(DBUS_LIBS) -ldl
 
-libconnline_la_SOURCES = src/backend.c \
+src_libconnline_la_SOURCES = src/backend.c \
 			src/connline.c \
 			src/dbus.c \
 			src/event.c \
@@ -111,7 +111,7 @@ if CONNLINE_EVENT_GLIB
 noinst_PROGRAMS += test/glib_test
 
 test_glib_test_CFLAGS = $(test_cflags) $(GLIB_CFLAGS)
-test_glib_test_LDADD = $(GLIB_LIBS) libconnline.la
+test_glib_test_LDADD = $(GLIB_LIBS) src/libconnline.la
 test_glib_test_SOURCES = test/glib_test.c
 endif # CONNLINE_EVENT_GLIB
 
@@ -119,7 +119,7 @@ if CONNLINE_EVENT_EFL
 noinst_PROGRAMS += test/efl_test
 
 test_efl_test_CFLAGS = $(test_cflags) $(EFL_CFLAGS)
-test_efl_test_LDADD = $(EFL_LIBS) libconnline.la
+test_efl_test_LDADD = $(EFL_LIBS) src/libconnline.la
 test_efl_test_SOURCES = test/efl_test.c
 endif # CONNLINE_EVENT_EFL
 
@@ -127,7 +127,7 @@ if CONNLINE_EVENT_LIBEVENT
 noinst_PROGRAMS += test/libevent_test
 
 test_libevent_test_CFLAGS = $(test_cflags) $(LIBEVENT_CFLAGS)
-test_libevent_test_LDADD = $(LIBEVENT_LIBS) libconnline.la
+test_libevent_test_LDADD = $(LIBEVENT_LIBS) src/libconnline.la
 test_libevent_test_SOURCES = test/libevent_test.c
 endif # CONNLINE_EVENT_LIBEVENT
 
