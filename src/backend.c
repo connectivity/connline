@@ -27,9 +27,12 @@ static struct connline_backend_plugin *backend = NULL;
 
 struct connline_backend_methods *connection_backend = NULL;
 
-void connline_backend_unusable(void)
+void connline_backend_unusable(struct connline_context *context)
 {
 	connection_backend = NULL;
+
+	context->is_online = false;
+	__connline_call_error_callback(context, true);
 }
 
 struct connline_backend_methods *__connline_setup_backend(DBusConnection *dbus_cnx)

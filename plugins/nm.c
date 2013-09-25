@@ -581,8 +581,7 @@ static DBusHandlerResult watch_nm_service(DBusConnection *dbus_cnx,
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
 	nm_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context, true);
+	connline_backend_unusable(context);
 
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }

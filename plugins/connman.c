@@ -192,8 +192,7 @@ static DBusHandlerResult watch_connman_service(DBusConnection *dbus_cnx,
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
 	connman_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context, true);
+	connline_backend_unusable(context);
 
 	/* We want other possible filter to get this one too */
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
@@ -206,8 +205,7 @@ static DBusHandlerResult notifier_release_method(DBusConnection *dbus_cnx,
 	struct connline_context *context = user_data;
 
 	connman_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context, true);
+	connline_backend_unusable(context);
 
 	dbus_message_unref(message);
 
