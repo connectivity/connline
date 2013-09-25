@@ -40,13 +40,16 @@ int __connline_trigger_callback(struct connline_context *context,
 void __connline_trigger_cleanup(struct connline_context *context);
 
 static inline
-void __connline_call_error_callback(struct connline_context *context)
+void __connline_call_error_callback(struct connline_context *context,
+							bool no_backend)
 {
 	if (context->error_callback != NULL) {
 		__connline_trigger_cleanup(context);
 
 		__connline_trigger_callback(context,
 					context->error_callback,
+					no_backend == true ?
+					CONNLINE_EVENT_NO_BACKEND :
 					CONNLINE_EVENT_ERROR, NULL);
 	}
 }

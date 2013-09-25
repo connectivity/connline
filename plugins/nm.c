@@ -269,8 +269,7 @@ error:
 	dbus_pending_call_unref(pending);
 
 	nm_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, false);
 }
 
 static int nm_device_get_all(struct connline_context *context)
@@ -376,8 +375,7 @@ error:
 	dbus_pending_call_unref(pending);
 
 	nm_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, false);
 }
 
 static int nm_get_devices(struct connline_context *context)
@@ -465,8 +463,7 @@ static DBusHandlerResult watch_nm_state(DBusConnection *dbus_cnx,
 
 error:
 	nm_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, false);
 
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
@@ -522,8 +519,7 @@ error:
 	dbus_pending_call_unref(pending);
 
 	nm_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, false);
 }
 
 static int nm_get_state(struct connline_context *context)
@@ -586,7 +582,7 @@ static DBusHandlerResult watch_nm_service(DBusConnection *dbus_cnx,
 
 	nm_backend_data_cleanup(context);
 
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, true);
 
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }

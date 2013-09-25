@@ -59,9 +59,13 @@ enum connline_bearer {
 /**
  * Connline Event type enumeration
  * As   an  asynchronous  library,  connline  will  generate   certain  events.
- * CONNLINE_EVENT_ERROR: when some backend or memory allocation  error occured.
+ * CONNLINE_EVENT_ERROR: when memory allocation  error occured.
  * When  such   event  occurs  on  a  context,  this  context  will  no  longer
  * generate new events and, thus, should be closed.
+ * CONNLINE_EVENT_NO_BACKEND: when there is no backend available.
+ * Either because it disappeared or just because there are none.  At that point
+ * we cannot tell the status so it's up to the application to do something.
+ * (acting as there would be a connection is the way to go)
  * CONNLINE_EVENT_DISCONNECTED: when the context is disconnected.
  * CONNLINE_EVENT_CONNECTED: when the context is connected. 
  * Note: depending on backend, such connected event might occure twice:
@@ -74,9 +78,10 @@ enum connline_bearer {
  */
 enum connline_event {
 	CONNLINE_EVENT_ERROR          = 0,
-	CONNLINE_EVENT_DISCONNECTED   = 1,
-	CONNLINE_EVENT_CONNECTED      = 2,
-	CONNLINE_EVENT_PROPERTY       = 3,
+	CONNLINE_EVENT_NO_BACKEND     = 1,
+	CONNLINE_EVENT_DISCONNECTED   = 2,
+	CONNLINE_EVENT_CONNECTED      = 3,
+	CONNLINE_EVENT_PROPERTY       = 4,
 };
 
 /**

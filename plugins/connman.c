@@ -193,7 +193,7 @@ static DBusHandlerResult watch_connman_service(DBusConnection *dbus_cnx,
 
 	connman_backend_data_cleanup(context);
 
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, true);
 
 	/* We want other possible filter to get this one too */
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
@@ -207,7 +207,7 @@ static DBusHandlerResult notifier_release_method(DBusConnection *dbus_cnx,
 
 	connman_backend_data_cleanup(context);
 
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, true);
 
 	dbus_message_unref(message);
 
@@ -494,10 +494,7 @@ error:
 	dbus_pending_call_unref(pending);
 
 	connman_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context);
-
-	return;
+	__connline_call_error_callback(context, false);
 }
 
 static int connman_create_session(struct connline_context *context)

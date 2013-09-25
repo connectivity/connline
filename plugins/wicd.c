@@ -167,8 +167,7 @@ error:
 	dbus_pending_call_unref(pending);
 
 	wicd_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, false);
 }
 
 static int wicd_get_interface(struct connline_context *context)
@@ -306,8 +305,7 @@ error:
 	free(ip);
 
 	wicd_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, false);
 
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
@@ -435,8 +433,7 @@ error:
 	dbus_pending_call_unref(pending);
 
 	wicd_backend_data_cleanup(context);
-
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, false);
 }
 
 static int wicd_get_connection_status(struct connline_context *context)
@@ -499,7 +496,7 @@ static DBusHandlerResult watch_wicd_service(DBusConnection *dbus_cnx,
 
 	wicd_backend_data_cleanup(context);
 
-	__connline_call_error_callback(context);
+	__connline_call_error_callback(context, true);
 
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
