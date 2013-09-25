@@ -31,7 +31,7 @@ static dlist *contexts_list = NULL;
 
 static inline bool is_connline_initialized(void)
 {
-	if (connection_backend == NULL)
+	if (dbus_cnx == NULL)
 		return false;
 
 	return true;
