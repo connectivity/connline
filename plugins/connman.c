@@ -36,8 +36,6 @@
 #define CONNMAN_NOTIFICATION_INTERFACE CONNMAN_DBUS_NAME ".Notification"
 #define CONNMAN_SESSION_INTERFACE CONNMAN_DBUS_NAME ".Session"
 
-#define DBUS_SERVICE_OWNER_CHANGED "NameOwnerChanged"
-
 #define CONNMAN_SERVICE_MATCH_RULE "type='signal'" \
 				",sender='" DBUS_INTERFACE_DBUS "'" \
 				",interface='" DBUS_INTERFACE_DBUS "'" \
@@ -62,9 +60,8 @@ struct connman_dbus_method {
 	DBusObjectPathMessageFunction function;
 };
 
-static DBusHandlerResult watch_connman_service(DBusConnection *dbus_cnx,
-							DBusMessage *message,
-							void *user_data);
+const char *connline_backend_watch_rule = CONNMAN_SERVICE_MATCH_RULE;
+const char *connline_backend_service_name = CONNMAN_DBUS_NAME;
 
 static void free_connman_dbus(struct connman_dbus *connman)
 {
@@ -142,10 +139,6 @@ static void connman_backend_data_cleanup(struct connline_context *context)
 {
 	struct connman_dbus *connman = context->backend_data;
 
-	connline_dbus_remove_watch(context->dbus_cnx,
-					CONNMAN_SERVICE_MATCH_RULE,
-					watch_connman_service, context);
-
 	__connline_trigger_cleanup(context);
 
 	close_notification(context);
@@ -161,43 +154,6 @@ static void connman_backend_data_cleanup(struct connline_context *context)
 	}
 }
 
-static DBusHandlerResult watch_connman_service(DBusConnection *dbus_cnx,
-							DBusMessage *message,
-							void *user_data)
-{
-	struct connline_context *context = user_data;
-	const char *unused1, *unused2;
-	const char *member;
-	const char *name;
-
-	if (dbus_message_get_type(message) != DBUS_MESSAGE_TYPE_SIGNAL)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	member = dbus_message_get_member(message);
-	if (member == NULL)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (strncmp(member, DBUS_SERVICE_OWNER_CHANGED,
-				sizeof(DBUS_SERVICE_OWNER_CHANGED)) != 0)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (dbus_message_get_args(message, NULL, DBUS_TYPE_STRING,
-					&name, DBUS_TYPE_STRING, &unused1,
-					DBUS_TYPE_STRING, &unused2,
-					DBUS_TYPE_INVALID) == FALSE)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (strncmp(name, CONNMAN_DBUS_NAME,
-				sizeof(CONNMAN_DBUS_NAME)) != 0)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	connman_backend_data_cleanup(context);
-	connline_backend_unusable(context);
-
-	/* We want other possible filter to get this one too */
-	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
 static DBusHandlerResult notifier_release_method(DBusConnection *dbus_cnx,
 						DBusMessage *message,
 						void *user_data)
@@ -205,8 +161,6 @@ static DBusHandlerResult notifier_release_method(DBusConnection *dbus_cnx,
 	struct connline_context *context = user_data;
 
 	connman_backend_data_cleanup(context);
-	connline_backend_unusable(context);
-
 	dbus_message_unref(message);
 
 	return DBUS_HANDLER_RESULT_HANDLED;
@@ -578,12 +532,6 @@ static int connman_open(struct connline_context *context)
 	connman = context->backend_data;
 
 	if (connman == NULL) {
-		/* Watch service */
-		if (connline_dbus_setup_watch(context->dbus_cnx,
-					CONNMAN_SERVICE_MATCH_RULE,
-					watch_connman_service, context) < 0)
-			return -ENOMEM;
-
 		connman = calloc(1, sizeof(struct connman_dbus));
 		if (connman == NULL)
 			return -ENOMEM;
@@ -646,12 +594,8 @@ static struct connline_backend_methods connman = {
 	connman_get_bearer
 };
 
-struct connline_backend_methods *connline_plugin_setup_backend(DBusConnection *dbus_cnx)
+struct connline_backend_methods *connline_plugin_setup_backend(void)
 {
-	if (connline_dbus_is_service_running(dbus_cnx,
-						CONNMAN_DBUS_NAME) == TRUE)
-		return &connman;
-
-	return NULL;
+	return &connman;
 }
 

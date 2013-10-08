@@ -21,9 +21,12 @@
 #include <connline/data.h>
 #include <connline/list.h>
 #include <connline/private.h>
+#include <connline/backend.h>
 
 #include <stdlib.h>
 #include <time.h>
+
+extern struct connline_backend_methods *connection_backend;
 
 static DBusConnection *dbus_cnx = NULL;
 static dlist *contexts_list = NULL;
@@ -36,8 +39,66 @@ static inline bool is_connline_initialized(void)
 	return true;
 }
 
+void __connline_close(struct connline_context *context)
+{
+	__connline_close_f _connline_close;
+
+	_connline_close = connection_backend->__connline_close;
+	if (_connline_close != NULL)
+		_connline_close(context);
+
+	context->is_online = false;
+}
+
+static void disconnect_context(void *data)
+{
+	struct connline_context *context = data;
+
+	__connline_close(context);
+	__connline_call_error_callback(context, true);
+}
+
+void __connline_disconnect_contexts(void)
+{
+	dlist_foreach(contexts_list, disconnect_context);
+}
+
+static void reconnect_context(void *data)
+{
+	struct connline_context *context = data;
+
+	connline_open(context, context->background_connection);
+}
+
+void __connline_reconnect_contexts(void)
+{
+	dlist_foreach(contexts_list, reconnect_context);
+}
+
+static void invalidate_context(void *data)
+{
+	struct connline_context *context = data;
+
+	__connline_call_error_callback(context, false);
+}
+
+void __connline_invalidate_contexts(void)
+{
+	dlist_foreach(contexts_list, invalidate_context);
+}
+
+static void __cleanup_context(void *data)
+{
+	struct connline_context *context = data;
+
+	__connline_close(context);
+	free(context);
+}
+
 int connline_init(enum connline_event_loop event_loop_type, void *data)
 {
+	int ret = 0;
+
 	if (__connline_setup_event_loop(event_loop_type) < 0)
 		return -EINVAL;
 
@@ -45,19 +106,17 @@ int connline_init(enum connline_event_loop event_loop_type, void *data)
 	if (dbus_cnx == NULL)
 		return -EINVAL;
 
-	if (connection_backend == NULL) {
-		connection_backend = __connline_setup_backend(dbus_cnx);
-		if (connection_backend == NULL) {
-			dbus_connection_unref(dbus_cnx);
-			dbus_cnx = NULL;
+	ret = __connline_setup_backend(dbus_cnx);
+	if (ret < 0) {
+		dbus_connection_unref(dbus_cnx);
+		dbus_cnx = NULL;
 
-			return -EINVAL;
-		}
+		return ret;
 	}
 
 	srand(time(NULL));
 
-	return 0;
+	return ret;
 }
 
 struct connline_context *connline_new(unsigned int bearer_type)
@@ -76,8 +135,6 @@ struct connline_context *connline_new(unsigned int bearer_type)
 	}
 
 	contexts_list = new_list;
-
-	context->dbus_cnx = dbus_connection_ref(dbus_cnx);
 	context->bearer_type = bearer_type;
 
 	return context;
@@ -150,6 +207,8 @@ int connline_open(struct connline_context *context,
 	__connline_open = connection_backend->__connline_open;
 	if (__connline_open == NULL)
 		return -EINVAL;
+	if (context->dbus_cnx == NULL)
+		context->dbus_cnx = dbus_connection_ref(dbus_cnx);
 
 	return __connline_open(context);
 }
@@ -162,26 +221,13 @@ bool connline_is_online(struct connline_context *context)
 	return context->is_online;
 }
 
-static inline void __backend_close(struct connline_context *context)
-{
-	__connline_close_f __connline_close;
-
-	if (context == NULL || is_connline_initialized() == false)
-		return;
-
-	__connline_close = connection_backend->__connline_close;
-	if (__connline_close != NULL)
-		__connline_close(context);
-
-	dbus_connection_unref(context->dbus_cnx);
-}
-
 void connline_close(struct connline_context *context)
 {
 	if (context == NULL || is_connline_initialized() == FALSE)
 		return;
 
-	__backend_close(context);
+	__connline_close(context);
+	dbus_connection_unref(context->dbus_cnx);
 
 	contexts_list = dlist_remove(contexts_list, context);
 
@@ -201,15 +247,6 @@ enum connline_bearer connline_get_bearer(struct connline_context *context)
 		return CONNLINE_BEARER_UNKNOWN;
 
 	return __connline_get_bearer(context);
-}
-
-static void __cleanup_context(void *data)
-{
-	struct connline_context *context = data;
-
-	__backend_close(context);
-
-	free(context);
 }
 
 void connline_cleanup(void)

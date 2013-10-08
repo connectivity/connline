@@ -28,6 +28,8 @@
 	#define DBUS_TIMEOUT_USE_DEFAULT (-1)
 #endif
 
+#define DBUS_SERVICE_OWNER_CHANGED "NameOwnerChanged"
+
 /* 
  * Used for connline_dbus_append_dict_entry_dict,
  * and connline_dbus_get_dict_entry. 

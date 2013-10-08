@@ -51,28 +51,50 @@ static int populate_event_plugin(void *handle,
 	return 0;
 }
 
-static void *connline_load_plugin(enum connline_event_loop event_loop_type,
-						void *connline_plugin,
-						DBusConnection *dbus_cnx)
+static int populate_backend_plugin(void *handle,
+				struct connline_backend_plugin *backend)
+{
+	const char **pointer;
+
+	backend->setup = dlsym(handle, "connline_plugin_setup_backend");
+	pointer = dlsym(handle, "connline_backend_watch_rule");
+	backend->watch_rule = *pointer;
+	pointer = dlsym(handle, "connline_backend_service_name");
+	backend->service_name = *pointer;
+
+	if (backend->setup == NULL || backend->watch_rule == NULL ||
+						backend->service_name == NULL)
+		return -1;
+
+	return 0;
+}
+
+static int connline_load_plugin(enum connline_event_loop event_loop_type,
+			struct connline_event_loop_plugin **event_plugin)
 {
 	char filename[FILENAME_SIZE];
 	struct dirent *dir_ent;
-	void *plugin = NULL;
+	const char *prefix;
+	bool found = false;
 	void *handle;
+	int ret = 0;
 	DIR *dir;
 
-	if (connline_plugin == NULL)
-		return NULL;
-
-	if (event_loop_type == CONNLINE_EVENT_LOOP_UNKNOWN && dbus_cnx == NULL)
-		return NULL;
+	if (event_loop_type == CONNLINE_EVENT_LOOP_UNKNOWN &&
+							event_plugin == NULL)
+		prefix = "backend_";
+	else
+		prefix = "event_";
 
 	dir = opendir(CONNLINE_PLUGIN_DIR);
 	if (dir == NULL)
-		return NULL;
+		return -ENOENT;
 
 	while ((dir_ent = readdir(dir)) != NULL) {
 		if (strstr(dir_ent->d_name, ".so") == NULL)
+			continue;
+
+		if (strstr(dir_ent->d_name, prefix) != dir_ent->d_name)
 			continue;
 
 		memset(filename, 0, FILENAME_SIZE);
@@ -84,52 +106,71 @@ static void *connline_load_plugin(enum connline_event_loop event_loop_type,
 			continue;
 
 		if (event_loop_type != CONNLINE_EVENT_LOOP_UNKNOWN) {
-			struct connline_event_loop_plugin *event_plugin =
-							connline_plugin;
 			unsigned int *plugin_event_loop;
+
+			*event_plugin = calloc(
+				sizeof(struct connline_event_loop_plugin), 1);
+			if (*event_plugin == NULL) {
+				ret = -ENOMEM;
+				goto loop_or_error;
+			}
 
 			plugin_event_loop = dlsym(handle,
 					"connline_plugin_event_loop_type");
-			if (plugin_event_loop == NULL)
-				goto loop_again;
+			if (plugin_event_loop == NULL ||
+					*plugin_event_loop != event_loop_type)
+				goto loop_or_error;
 
-			if (*plugin_event_loop != event_loop_type)
-				goto loop_again;
+			if (populate_event_plugin(handle,
+							*event_plugin) != 0) {
+				free(*event_plugin);
+				goto loop_or_error;
+			}
 
-			if (populate_event_plugin(handle, event_plugin) != 0)
-				goto loop_again;
+			(*event_plugin)->handle = handle;
+			found = true;
 
-			event_plugin->handle = handle;
-
-			plugin = event_plugin;
 			break;
 		} else {
-			struct connline_backend_plugin *backend_plugin =
-							connline_plugin;
-			__connline_setup_backend_f setup_backend;
+			struct connline_backend_plugin *backend_plugin;
 
-			setup_backend = dlsym(handle,
-					"connline_plugin_setup_backend");
-			if (setup_backend == NULL)
-				goto loop_again;
+			backend_plugin = calloc(
+				sizeof(struct connline_backend_plugin), 1);
+			if (backend_plugin == NULL) {
+				ret = -ENOMEM;
+				goto loop_or_error;
+			}
 
-			backend_plugin->methods = setup_backend(dbus_cnx);
-			if (backend_plugin->methods == NULL)
-				goto loop_again;
+			if (populate_backend_plugin(handle,
+							backend_plugin) != 0) {
+				free(backend_plugin);
+				goto loop_or_error;
+			}
 
 			backend_plugin->handle = handle;
+			ret = __connline_backend_add(backend_plugin);
+			if (ret < 0) {
+				free(backend_plugin);
+				goto loop_or_error;
+			}
 
-			plugin = backend_plugin;
-			break;
+			found = true;
 		}
-loop_again:
-		dlclose(handle);
-		continue;
+
+loop_or_error:
+		if (ret < 0) {
+			dlclose(handle);
+			break;
+		} else if (event_loop_type != CONNLINE_EVENT_LOOP_UNKNOWN)
+			dlclose(handle);
 	}
 
 	closedir(dir);
 
-	return plugin;
+	if (ret == 0 && found == false)
+		return -ENOENT;
+
+	return ret;
 }
 
 struct connline_event_loop_plugin *
@@ -137,47 +178,25 @@ __connline_load_event_loop_plugin(enum connline_event_loop event_loop_type)
 {
 	struct connline_event_loop_plugin *event_plugin;
 
-	event_plugin = calloc(sizeof(struct connline_event_loop_plugin), 1);
-	if (event_plugin == NULL)
-		return NULL;
-
-	if (connline_load_plugin(event_loop_type,
-					event_plugin, NULL) == NULL) {
-		free(event_plugin);
-		return NULL;
-	}
+	if (connline_load_plugin(event_loop_type, &event_plugin) != 0)
+		event_plugin = NULL;
 
 	return event_plugin;
 }
 
-struct connline_backend_plugin *
-__connline_load_backend_plugin(DBusConnection *dbus_cnx)
+int __connline_load_backend_plugins(void)
 {
-	struct connline_backend_plugin *backend_plugin;
-
-	backend_plugin = calloc(sizeof(struct connline_backend_plugin), 1);
-	if (backend_plugin == NULL)
-		return NULL;
-
-	if (connline_load_plugin(CONNLINE_EVENT_LOOP_UNKNOWN,
-					backend_plugin, dbus_cnx) == NULL) {
-		free(backend_plugin);
-		return NULL;
-	}
-
-	return backend_plugin;
+	return connline_load_plugin(CONNLINE_EVENT_LOOP_UNKNOWN, NULL);
 }
 
 void __connline_cleanup_event_plugin(struct connline_event_loop_plugin *event_plugin)
 {
 	dlclose(event_plugin->handle);
-
 	free(event_plugin);
 }
 
 void __connline_cleanup_backend_plugin(struct connline_backend_plugin *backend_plugin)
 {
 	dlclose(backend_plugin->handle);
-
 	free(backend_plugin);
 }

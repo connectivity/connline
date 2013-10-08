@@ -22,6 +22,7 @@
 #define __CONNLINE_PRIVATE_H__
 
 #include <connline/event.h>
+#include <connline/list.h>
 
 struct connline_event_loop_plugin {
 	void *handle;
@@ -43,18 +44,29 @@ void __connline_cleanup_event_loop(DBusConnection *dbus_cnx);
 struct connline_backend_plugin {
 	void *handle;
 
-	struct connline_backend_methods *methods;
+	const char *service_name;
+	const char *watch_rule;
+	__connline_setup_backend_f setup;
 };
 
-struct connline_backend_methods *__connline_setup_backend(DBusConnection *dbus_cnx);
+int __connline_setup_backend(DBusConnection *dbus_cnx);
+
+int __connline_backend_add(struct connline_backend_plugin *backend_plugin);
+
+void __connline_close(struct connline_context *context);
+
+void __connline_disconnect_contexts(void);
+
+void __connline_reconnect_contexts(void);
+
+void __connline_invalidate_contexts(void);
 
 void __connline_cleanup_backend(void);
 
 struct connline_event_loop_plugin *
 __connline_load_event_loop_plugin(enum connline_event_loop event_loop_type);
 
-struct connline_backend_plugin *
-__connline_load_backend_plugin(DBusConnection *dbus_cnx);
+int __connline_load_backend_plugins(void);
 
 void __connline_cleanup_event_plugin(struct connline_event_loop_plugin *event_plugin);
 

@@ -35,8 +35,6 @@
 #define NM_DBUS_NAME "org.freedesktop.NetworkManager"
 #define NM_MANAGER_PATH "/org/freedesktop/NetworkManager"
 
-#define DBUS_SERVICE_OWNER_CHANGED "NameOwnerChanged"
-
 #define DBUS_FREEDESKTOP_PROPERTIES DBUS_INTERFACE_DBUS ".Properties"
 
 #define NM_SERVICE_MATCH_RULE "type='signal'" \
@@ -83,11 +81,10 @@ struct nm_dbus {
 	DBusPendingCall *call;
 };
 
-static int nm_device_get_all(struct connline_context *context);
+const char *connline_backend_watch_rule = NM_SERVICE_MATCH_RULE;
+const char *connline_backend_service_name = NM_DBUS_NAME;
 
-static DBusHandlerResult watch_nm_service(DBusConnection *dbus_cnx,
-						DBusMessage *message,
-						void *user_data);
+static int nm_device_get_all(struct connline_context *context);
 
 static DBusHandlerResult watch_nm_state(DBusConnection *dbus_cnx,
 						DBusMessage *message,
@@ -114,9 +111,6 @@ static void nm_backend_data_cleanup(struct connline_context *context)
 
 	if (nm == NULL)
 		return;
-
-	connline_dbus_remove_watch(context->dbus_cnx,
-			NM_SERVICE_MATCH_RULE, watch_nm_service, context);
 
 	if (nm->state_watched == TRUE)
 		connline_dbus_remove_watch(context->dbus_cnx,
@@ -551,41 +545,6 @@ out:
 	return ret;
 }
 
-static DBusHandlerResult watch_nm_service(DBusConnection *dbus_cnx,
-						DBusMessage *message,
-						void *user_data)
-{
-	struct connline_context *context = user_data;
-	const char *unused1, *unused2;
-	const char *member;
-	const char *name;
-
-	if (dbus_message_get_type(message) != DBUS_MESSAGE_TYPE_SIGNAL)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	member = dbus_message_get_member(message);
-	if (member == NULL)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (strncmp(member, DBUS_SERVICE_OWNER_CHANGED,
-				sizeof(DBUS_SERVICE_OWNER_CHANGED)) != 0)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (dbus_message_get_args(message, NULL, DBUS_TYPE_STRING,
-					&name, DBUS_TYPE_STRING, &unused1,
-					DBUS_TYPE_STRING, &unused2,
-					DBUS_TYPE_INVALID) == FALSE)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (strncmp(name, NM_DBUS_NAME, sizeof(NM_DBUS_NAME)) != 0)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	nm_backend_data_cleanup(context);
-	connline_backend_unusable(context);
-
-	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
 static int nm_open(struct connline_context *context)
 {
 	struct nm_dbus *nm;
@@ -600,11 +559,6 @@ static int nm_open(struct connline_context *context)
 	nm = context->backend_data;
 
 	if (nm == NULL) {
-		if (connline_dbus_setup_watch(context->dbus_cnx,
-						NM_SERVICE_MATCH_RULE,
-						watch_nm_service, context) < 0)
-			return -ENOMEM;
-
 		nm = calloc(1, sizeof(struct nm_dbus));
 		if (nm == NULL)
 			goto error;
@@ -651,10 +605,7 @@ static struct connline_backend_methods nm = {
 	nm_get_bearer
 };
 
-struct connline_backend_methods *connline_plugin_setup_backend(DBusConnection *dbus_cnx)
+struct connline_backend_methods *connline_plugin_setup_backend(void)
 {
-	if (connline_dbus_is_service_running(dbus_cnx, NM_DBUS_NAME) == TRUE)
-		return &nm;
-
-	return NULL;
+	return &nm;
 }

@@ -35,8 +35,6 @@
 			",interface='" WICD_DBUS_NAME "'" \
 			",member='StatusChanged'"
 
-#define DBUS_SERVICE_OWNER_CHANGED "NameOwnerChanged"
-
 #define WICD_SERVICE_MATCH_RULE "type='signal'" \
 			",sender='" DBUS_INTERFACE_DBUS "'" \
 			",interface='" DBUS_INTERFACE_DBUS "'" \
@@ -59,9 +57,8 @@ struct wicd_dbus {
 	DBusPendingCall *call;
 };
 
-static DBusHandlerResult watch_wicd_service(DBusConnection *dbus_cnx,
-						DBusMessage *message,
-						void *user_data);
+const char *connline_backend_watch_rule = WICD_SERVICE_MATCH_RULE;
+const char *connline_backend_service_name = WICD_DBUS_NAME;
 
 static DBusHandlerResult watch_wicd_status(DBusConnection *dbus_cnx,
 						DBusMessage *message,
@@ -98,9 +95,6 @@ static void wicd_backend_data_cleanup(struct connline_context *context)
 
 	if (wicd == NULL)
 		return;
-
-	connline_dbus_remove_watch(context->dbus_cnx,
-			WICD_SERVICE_MATCH_RULE, watch_wicd_service, context);
 
 	if (wicd->status_watched == TRUE)
 		connline_dbus_remove_watch(context->dbus_cnx,
@@ -465,41 +459,6 @@ out:
 	return ret;
 }
 
-static DBusHandlerResult watch_wicd_service(DBusConnection *dbus_cnx,
-						DBusMessage *message,
-						void *user_data)
-{
-	struct connline_context *context = user_data;
-	const char *unused1, *unused2;
-	const char *member;
-	const char *name;
-
-	if (dbus_message_get_type(message) != DBUS_MESSAGE_TYPE_SIGNAL)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	member = dbus_message_get_member(message);
-	if (member == NULL)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (strncmp(member, DBUS_SERVICE_OWNER_CHANGED,
-				sizeof(DBUS_SERVICE_OWNER_CHANGED)) != 0)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (dbus_message_get_args(message, NULL, DBUS_TYPE_STRING,
-					&name, DBUS_TYPE_STRING, &unused1,
-					DBUS_TYPE_STRING, &unused2,
-					DBUS_TYPE_INVALID) == FALSE)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	if (strncmp(name, WICD_DBUS_NAME, sizeof(WICD_DBUS_NAME)) != 0)
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-	wicd_backend_data_cleanup(context);
-	connline_backend_unusable(context);
-
-	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
 static int wicd_open(struct connline_context *context)
 {
 	struct wicd_dbus *wicd;
@@ -514,12 +473,6 @@ static int wicd_open(struct connline_context *context)
 	wicd = context->backend_data;
 
 	if (wicd == NULL) {
-		/* Watch service */
-		if (connline_dbus_setup_watch(context->dbus_cnx,
-					WICD_SERVICE_MATCH_RULE,
-					watch_wicd_service, context) < 0)
-			return -ENOMEM;
-
 		wicd = calloc(1, sizeof(struct wicd_dbus));
 		if (wicd == NULL)
 			goto error;
@@ -571,10 +524,7 @@ static struct connline_backend_methods wicd = {
 	wicd_get_bearer
 };
 
-struct connline_backend_methods *connline_plugin_setup_backend(DBusConnection *dbus_cnx)
+struct connline_backend_methods *connline_plugin_setup_backend(void)
 {
-	if (connline_dbus_is_service_running(dbus_cnx, WICD_DBUS_NAME) == TRUE)
-		return &wicd;
-
-	return NULL;
+	return &wicd;
 }
