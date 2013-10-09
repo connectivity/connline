@@ -134,39 +134,15 @@ int connline_init(enum connline_event_loop event_loop_type, void *data);
 struct connline_context *connline_new(unsigned int bearer_type);
 
 /**
- * Sets the error callback for a context
- * This callback is triggered when the context went to a unrecoverable error
+ * Sets the event callback for a context
+ * This callback is triggered when any event arise.
+ * (not for CONNLINE_EVENT_PROPERTY, @see connline_set_property_callback())
  * @param context a valid connline context
  * @param callback a pointer on a callback function or NULL to unset it
  * @return 0 on success or a negative value instead
  * @see connline_callback_f
  */
-int connline_set_error_callback(struct connline_context *context,
-					connline_callback_f callback);
-
-/**
- * Sets the disconnected callback for a context
- * This callback is triggered when the context went disconnected
- * @param context a valid connline context
- * @param callback a pointer on a callback function or NULL to unset it
- * @return 0 on success or a negative value instead
- * @see connline_callback_f
- */
-int connline_set_disconnected_callback(struct connline_context *context,
-						connline_callback_f callback);
-
-/**
- * Sets the connected callback for a context
- * This callback is triggered when the context went connected
- * use connline_is_online() to knew whether context is online or not.
- * Note:  such callback might  be called twice:  when being connected  and when
- * being online (ConnMan backend case).
- * @param context a valid connline context
- * @param callback a pointer on a callback function or NULL to unset it
- * @return 0 on success or a negative value instead
- * @see connline_callback_f, connline_is_online
- */
-int connline_set_connected_callback(struct connline_context *context,
+int connline_set_event_callback(struct connline_context *context,
 					connline_callback_f callback);
 
 /**

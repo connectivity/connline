@@ -153,9 +153,7 @@ int main( void )
 	if (cnx == NULL)
 		goto error;
 
-	connline_set_error_callback(cnx, network_connection_callback);
-	connline_set_disconnected_callback(cnx, network_connection_callback);
-	connline_set_connected_callback(cnx, network_connection_callback);
+	connline_set_event_callback(cnx, network_connection_callback);
 	connline_set_property_callback(cnx, network_connection_callback);
 	connline_set_user_data(cnx, loop);
 

@@ -140,35 +140,13 @@ struct connline_context *connline_new(unsigned int bearer_type)
 	return context;
 }
 
-int connline_set_error_callback(struct connline_context *context,
+int connline_set_event_callback(struct connline_context *context,
 					connline_callback_f callback)
 {
 	if (context == NULL)
 		return -EINVAL;
 
-	context->error_callback = callback;
-
-	return 0;
-}
-
-int connline_set_disconnected_callback(struct connline_context *context,
-						connline_callback_f callback)
-{
-	if (context == NULL)
-		return -EINVAL;
-
-	context->disconnected_callback = callback;
-
-	return 0;
-}
-
-int connline_set_connected_callback(struct connline_context *context,
-					connline_callback_f callback)
-{
-	if (context == NULL)
-		return -EINVAL;
-
-	context->connected_callback = callback;
+	context->event_callback = callback;
 
 	return 0;
 }

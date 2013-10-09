@@ -35,9 +35,7 @@ struct connline_context {
 
 	bool is_online;
 
-	connline_callback_f error_callback;
-	connline_callback_f disconnected_callback;
-	connline_callback_f connected_callback;
+	connline_callback_f event_callback;
 	connline_callback_f property_callback;
 
 	void *user_data;

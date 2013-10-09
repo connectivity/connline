@@ -43,11 +43,11 @@ static inline
 void __connline_call_error_callback(struct connline_context *context,
 							bool no_backend)
 {
-	if (context->error_callback != NULL) {
+	if (context->event_callback != NULL) {
 		__connline_trigger_cleanup(context);
 
 		__connline_trigger_callback(context,
-					context->error_callback,
+					context->event_callback,
 					no_backend == true ?
 					CONNLINE_EVENT_NO_BACKEND :
 					CONNLINE_EVENT_ERROR, NULL);
@@ -57,18 +57,18 @@ void __connline_call_error_callback(struct connline_context *context,
 static inline
 void __connline_call_disconnected_callback(struct connline_context *context)
 {
-	if (context->disconnected_callback != NULL)
+	if (context->event_callback != NULL)
 		__connline_trigger_callback(context,
-					context->disconnected_callback,
+					context->event_callback,
 					CONNLINE_EVENT_DISCONNECTED, NULL);
 }
 
 static inline
 void __connline_call_connected_callback(struct connline_context *context)
 {
-	if (context->connected_callback != NULL)
+	if (context->event_callback != NULL)
 		__connline_trigger_callback(context,
-					context->connected_callback,
+					context->event_callback,
 					CONNLINE_EVENT_CONNECTED, NULL);
 }
 
