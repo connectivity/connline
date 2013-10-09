@@ -21,6 +21,8 @@
 #ifndef __CONNLINE_PRIVATE_H__
 #define __CONNLINE_PRIVATE_H__
 
+#include <config.h>
+
 #include <connline/event.h>
 #include <connline/list.h>
 

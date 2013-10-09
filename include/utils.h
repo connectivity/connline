@@ -21,7 +21,17 @@
 #ifndef __CONNLINE_UTILS_H__
 #define __CONNLINE_UTILS_H__
 
+#include <config.h>
 #include <connline/connline.h>
+
+#ifdef DEBUG
+#include <stdio.h>
+#define DBG(fmt, arg...) { \
+	fprintf(stdout, "DBG:%s:%s() " fmt, __FILE__, __FUNCTION__ , ## arg); \
+}
+#else
+#define DBG(fmt, arg...) {}
+#endif
 
 char *get_process_name(void);
 

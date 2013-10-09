@@ -80,6 +80,7 @@ AC_ARG_ENABLE([debug],
 		[
 		if test "x$enable_debug" = "xyes"; then
 			CFLAGS="$CFLAGS -g"
+			AC_DEFINE([DEBUG], [], [Enable DBG macro for debug messages])
 		fi
 		],
 		[enable_debug=no]
