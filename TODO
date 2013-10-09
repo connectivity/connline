@@ -1,3 +1,2 @@
-- Add debug output in debug mode
 - Make libevent support independent from glib
 - Add libev support
