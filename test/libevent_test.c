@@ -73,6 +73,9 @@ void network_connection_callback(struct connline_context *context,
 		evtimer_add(ev, &timeout);
 
 		break;
+	case CONNLINE_EVENT_NO_BACKEND:
+		printf("No Connection backend\n");
+		break;
 	case CONNLINE_EVENT_DISCONNECTED:
 		printf("We are not connected.\n");
 		break;

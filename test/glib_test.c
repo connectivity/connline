@@ -120,6 +120,9 @@ void network_connection_callback(struct connline_context *context,
 		g_main_loop_quit(loop);
 
 		break;
+	case CONNLINE_EVENT_NO_BACKEND:
+		printf("No Connection backend\n");
+		break;
 	case CONNLINE_EVENT_DISCONNECTED:
 		printf("We are not connected.\n");
 		break;
