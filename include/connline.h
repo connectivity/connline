@@ -67,7 +67,7 @@ enum connline_bearer {
  * we cannot tell the status so it's up to the application to do something.
  * (acting as there would be a connection is the way to go)
  * CONNLINE_EVENT_DISCONNECTED: when the context is disconnected.
- * CONNLINE_EVENT_CONNECTED: when the context is connected. 
+ * CONNLINE_EVENT_CONNECTED: when the context is connected.
  * Note: depending on backend, such connected event might occure twice:
  * - when it got a connection but is not yet online
  * - when its connection went online
