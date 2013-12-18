@@ -27,7 +27,8 @@
 #ifdef DEBUG
 #include <stdio.h>
 #define DBG(fmt, arg...) { \
-	fprintf(stdout, "DBG:%s:%s() " fmt, __FILE__, __FUNCTION__ , ## arg); \
+	fprintf(stdout, "DBG:%s:%s() " fmt "\n", \
+		__FILE__, __FUNCTION__ , ## arg); \
 }
 #else
 #define DBG(fmt, arg...) {}

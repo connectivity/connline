@@ -170,8 +170,8 @@ int connline_set_user_data(struct connline_context *context, void *user_data);
  * Depending on  the  connection  manager  daemon, this  might  lead  to  valid
  * network connection.
  * A background connection is when you are just requesting to be  notified when
- * a connection has been set, but you are  note  requesting  the  underlying to
- * get connected.
+ * a connection  has  been  set,  but you are  not  requesting  the  underlying
+ * backend to get connected.
  * If a network connection happens and follows  the  bearer  type  you  set for
  * this context,  connected  event  will  be triggered  (if  only an  connected
  * callback was set)
