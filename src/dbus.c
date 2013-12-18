@@ -351,7 +351,7 @@ int connline_dbus_get_array(DBusMessageIter *iter,
 
 	if (iteration > 0) {
 		value_array[iteration] = NULL;
-		*length = iteration - 1;
+		*length = iteration;
 	}
 
 	*((void **) destination) = value_array;
