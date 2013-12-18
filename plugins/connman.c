@@ -338,7 +338,7 @@ static int setup_notification(struct connline_context *context)
 	dbus_bus_add_match(context->dbus_cnx, rule, &error);
 
 	if (dbus_error_is_set(&error)) {
-		DBG("cannot add match - %s - rule: %s\n",
+		DBG("cannot add match - %s - rule: %s",
 					error.message, rule);
 
 		dbus_error_free(&error);
@@ -430,7 +430,7 @@ static void create_session_callback(DBusPendingCall *pending, void *user_data)
 
 	strncpy(connman->session_path, session_path, length);
 
-	DBG("%p - %s - %s\n", context, connman->session_path,
+	DBG("%p - %s - %s", context, connman->session_path,
 						connman->notifier_path);
 
 	dbus_message_unref(reply);
@@ -520,7 +520,7 @@ static int connman_open(struct connline_context *context)
 {
 	struct connman_dbus *connman;
 
-	DBG("context %p\n", context);
+	DBG("context %p", context);
 
 	if (context == NULL || context->dbus_cnx == NULL)
 		return -EINVAL;
@@ -550,6 +550,8 @@ static int connman_close(struct connline_context *context)
 {
 	struct connman_dbus *connman;
 	DBusMessage *message;
+
+	DBG("");
 
 	if (context == NULL || context->dbus_cnx == NULL)
 		return -EINVAL;
