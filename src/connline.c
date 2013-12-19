@@ -22,6 +22,7 @@
 #include <connline/list.h>
 #include <connline/private.h>
 #include <connline/backend.h>
+#include <connline/utils.h>
 
 #include <stdlib.h>
 #include <time.h>
@@ -39,9 +40,20 @@ static inline bool is_connline_initialized(void)
 	return true;
 }
 
+static inline bool is_backend_up(void)
+{
+	if (connection_backend == NULL)
+		return false;
+
+	return true;
+}
+
 void __connline_close(struct connline_context *context)
 {
 	__connline_close_f _connline_close;
+
+	if (is_backend_up() == false)
+		return;
 
 	_connline_close = connection_backend->__connline_close;
 	if (_connline_close != NULL)
@@ -175,20 +187,22 @@ int connline_set_user_data(struct connline_context *context, void *user_data)
 int connline_open(struct connline_context *context,
 					bool background_connection)
 {
-	__connline_open_f __connline_open;
+	__connline_open_f _connline_open;
 
 	if (context == NULL || is_connline_initialized() == false)
 		return -EINVAL;
 
 	context->background_connection = background_connection;
 
-	__connline_open = connection_backend->__connline_open;
-	if (__connline_open == NULL)
-		return -EINVAL;
+	if (is_backend_up() == false)
+		return 0;
+
+	_connline_open = connection_backend->__connline_open;
+
 	if (context->dbus_cnx == NULL)
 		context->dbus_cnx = dbus_connection_ref(dbus_cnx);
 
-	return __connline_open(context);
+	return _connline_open(context);
 }
 
 bool connline_is_online(struct connline_context *context)
@@ -201,7 +215,7 @@ bool connline_is_online(struct connline_context *context)
 
 void connline_close(struct connline_context *context)
 {
-	if (context == NULL || is_connline_initialized() == FALSE)
+	if (context == NULL || is_connline_initialized() == false)
 		return;
 
 	__connline_close(context);
