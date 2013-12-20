@@ -33,12 +33,10 @@ struct connline_context {
 	unsigned int bearer_type;
 	bool background_connection;
 
-	bool is_online;
-
 	connline_callback_f event_callback;
-	connline_callback_f property_callback;
-
 	void *user_data;
+
+	bool is_online;
 
 	void *backend_data;
 };

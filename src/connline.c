@@ -53,12 +53,12 @@ void __connline_close(struct connline_context *context)
 	__connline_close_f _connline_close;
 
 	if (is_backend_up() == false)
-		return;
+		goto out;
 
 	_connline_close = connection_backend->__connline_close;
-	if (_connline_close != NULL)
-		_connline_close(context);
+	_connline_close(context);
 
+out:
 	context->is_online = false;
 }
 
@@ -78,8 +78,10 @@ void __connline_disconnect_contexts(void)
 static void reconnect_context(void *data)
 {
 	struct connline_context *context = data;
+	__connline_open_f _connline_open;
 
-	connline_open(context, context->background_connection);
+	_connline_open = connection_backend->__connline_open;
+	_connline_open(context);
 }
 
 void __connline_reconnect_contexts(void)
@@ -131,7 +133,7 @@ int connline_init(enum connline_event_loop event_loop_type, void *data)
 	return ret;
 }
 
-struct connline_context *connline_new(unsigned int bearer_type)
+static struct connline_context *__connline_context_new(void)
 {
 	struct connline_context *context;
 	dlist *new_list;
@@ -147,62 +149,38 @@ struct connline_context *connline_new(unsigned int bearer_type)
 	}
 
 	contexts_list = new_list;
-	context->bearer_type = bearer_type;
 
 	return context;
 }
 
-int connline_set_event_callback(struct connline_context *context,
-					connline_callback_f callback)
+struct connline_context *connline_open(enum connline_bearer bearer_type,
+						bool background_connection,
+						connline_callback_f callback,
+						void *user_data)
 {
-	if (context == NULL)
-		return -EINVAL;
-
-	context->event_callback = callback;
-
-	return 0;
-}
-
-int connline_set_property_callback(struct connline_context *context,
-					connline_callback_f callback)
-{
-	if (context == NULL)
-		return -EINVAL;
-
-	context->property_callback = callback;
-
-	return 0;
-}
-
-int connline_set_user_data(struct connline_context *context, void *user_data)
-{
-	if (context == NULL)
-		return -EINVAL;
-
-	context->user_data = user_data;
-
-	return 0;
-}
-
-int connline_open(struct connline_context *context,
-					bool background_connection)
-{
+	struct connline_context *context;
 	__connline_open_f _connline_open;
 
-	if (context == NULL || is_connline_initialized() == false)
-		return -EINVAL;
+	if (is_connline_initialized() == false)
+		return NULL;
 
+	context = __connline_context_new();
+	if (context == NULL)
+		return NULL;
+
+	context->bearer_type = bearer_type;
 	context->background_connection = background_connection;
+	context->event_callback = callback;
+	context->user_data = user_data;
+	context->dbus_cnx = dbus_connection_ref(dbus_cnx);
 
 	if (is_backend_up() == false)
-		return 0;
+		return context;
 
 	_connline_open = connection_backend->__connline_open;
+	_connline_open(context);
 
-	if (context->dbus_cnx == NULL)
-		context->dbus_cnx = dbus_connection_ref(dbus_cnx);
-
-	return _connline_open(context);
+	return context;
 }
 
 bool connline_is_online(struct connline_context *context)
@@ -222,7 +200,6 @@ void connline_close(struct connline_context *context)
 	dbus_connection_unref(context->dbus_cnx);
 
 	contexts_list = dlist_remove(contexts_list, context);
-
 	free(context);
 }
 
@@ -234,7 +211,6 @@ enum connline_bearer connline_get_bearer(struct connline_context *context)
 		return CONNLINE_BEARER_UNKNOWN;
 
 	__connline_get_bearer = connection_backend->__connline_get_bearer;
-
 	if (__connline_get_bearer == NULL)
 		return CONNLINE_BEARER_UNKNOWN;
 

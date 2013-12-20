@@ -115,7 +115,7 @@ typedef void (*connline_callback_f)(struct connline_context *context,
 					void *user_data);
 
 /**
- * Initializes Connline library according to the right event loop
+ * Initialize Connline library according to the right event loop
  * @param event_loop_type a supported event loop type
  * @param data a pointer on a specific data depending on event loop type
  * This affects only CONNLINE_EVENT_LOOP_LIBEVENT,  data should be a pointer on
@@ -126,47 +126,7 @@ typedef void (*connline_callback_f)(struct connline_context *context,
 int connline_init(enum connline_event_loop event_loop_type, void *data);
 
 /**
- * Creates a new context following certain bearer
- * @param bearer_type one bearer type or one made from binary 'or' operation
- * @return a context pointer on success or NULL instead
- * @see connline_bearer
- */
-struct connline_context *connline_new(unsigned int bearer_type);
-
-/**
- * Sets the event callback for a context
- * This callback is triggered when any event arise.
- * (not for CONNLINE_EVENT_PROPERTY, @see connline_set_property_callback())
- * @param context a valid connline context
- * @param callback a pointer on a callback function or NULL to unset it
- * @return 0 on success or a negative value instead
- * @see connline_callback_f
- */
-int connline_set_event_callback(struct connline_context *context,
-					connline_callback_f callback);
-
-/**
- * Sets the property callback for a context
- * This callback is triggered when a context property has changed
- * @param context a valid connline context
- * @param callback a pointer on a callback function or NULL to unset it
- * @return 0 on success or a negative value instead
- * @see connline_callback_f
- */
-int connline_set_property_callback(struct connline_context *context,
-					connline_callback_f callback);
-
-/**
- * Sets a pointer pointing on user's data necessary when callback are triggered
- * @param context a valid connline context
- * @param user_data a pointer or NULL to unset it
- * @return 0 on success or a negative value instead
- * @see connline_callback_f
- */
-int connline_set_user_data(struct connline_context *context, void *user_data);
-
-/**
- * Requests the context to open a connection
+ * Request the context to open a connection
  * Depending on  the  connection  manager  daemon, this  might  lead  to  valid
  * network connection.
  * A background connection is when you are just requesting to be  notified when
@@ -180,11 +140,13 @@ int connline_set_user_data(struct connline_context *context, void *user_data);
  * background connection or not.
  * @return 0 on success or a negative value instead
  */
-int connline_open(struct connline_context *context,
-					bool background_connection);
+struct connline_context *connline_open(enum connline_bearer bearer_type,
+						bool background_connection,
+						connline_callback_f callback,
+						void *user_data);
 
 /**
- * Returns context's status
+ * Return context's status
  * @param context a valid connline context
  * @return a boolean indicating context is online or not
  * Note:  on ConnMan backend, getting a CONNLINE_EVENT_CONNECTED  does not mean
@@ -193,7 +155,7 @@ int connline_open(struct connline_context *context,
 bool connline_is_online(struct connline_context *context);
 
 /**
- * Returns the context bearer in use when connected
+ * Return the context bearer in use when connected
  * @param context a valid connline context
  * @return an integer  representing  the bearer in  use. Note  if not connected
  * it  will return  CONNLINE_BEARER_UNKNOWN.
@@ -204,8 +166,10 @@ bool connline_is_online(struct connline_context *context);
 enum connline_bearer connline_get_bearer(struct connline_context *context);
 
 /**
- * Closes the context
+ * Close the context
+ * Memory will be deallocated internally.
  * @param context a valid connline context
+ * @see connline_open()
  */
 void connline_close(struct connline_context *context);
 

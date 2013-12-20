@@ -76,9 +76,9 @@ static inline
 void __connline_call_property_callback(struct connline_context *context,
 							char **property_values)
 {
-	if (context->property_callback != NULL)
+	if (context->event_callback != NULL)
 		__connline_trigger_callback(context,
-					context->property_callback,
+					context->event_callback,
 					CONNLINE_EVENT_PROPERTY,
 					property_values);
 }
