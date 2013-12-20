@@ -92,7 +92,7 @@ static unsigned int setup_signal_handler(GMainLoop *loop)
 	return source;
 }
 
-void print_properties(char **properties)
+void print_properties(const char **properties)
 {
 	int i;
 
@@ -100,8 +100,8 @@ void print_properties(char **properties)
 		return;
 
 	for (i = 0; properties[i] != NULL; i += 2) {
-		char *property = properties[i];
-		char *value = properties[i+1];
+		const char *property = properties[i];
+		const char *value = properties[i+1];
 
 		printf("Property: %s = %s\n", property, value);
 	}
@@ -109,7 +109,7 @@ void print_properties(char **properties)
 
 void network_connection_callback(struct connline_context *context,
 					enum connline_event event,
-					char **properties,
+					const char **properties,
 					void *user_data)
 {
 	GMainLoop *loop = user_data;
@@ -132,7 +132,6 @@ void network_connection_callback(struct connline_context *context,
 		break;
 	case CONNLINE_EVENT_PROPERTY:
 		print_properties(properties);
-		g_strfreev(properties);
 
 		break;
 	default:

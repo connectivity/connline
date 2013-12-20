@@ -100,8 +100,8 @@ struct connline_context;
  * @param properties a table of key/value pair ended by  NULL.   This parameter
  * is relevant only for CONNLINE_EVENT_PROPERTY event.  The table  is made  of:
  * key - value - key - value - ... key - value ... - NULL
- * Keys and  values are all allocated and need to be  freed by the application.
- * (You can use a function such as g_strfreev() if you use glib)
+ * Keys and  values  will be  freed by  connline so  application needs to  copy
+ * what's relevant to itself.
  * Keys are:
  * - bearer: the bearer name which put the context connected
  * - interface: the interface name of the network connection (eth0, wlan0...)
@@ -111,7 +111,7 @@ struct connline_context;
  */
 typedef void (*connline_callback_f)(struct connline_context *context,
 					enum connline_event event,
-					char **properties,
+					const char **properties,
 					void *user_data);
 
 /**

@@ -313,7 +313,16 @@ static void trigger_run(int fd, short event, void *data)
 	if (context_ht != NULL)
 		g_hash_table_remove(context_ht, ev);
 
-	callback(context, c_event, changed_property, context->user_data);
+	callback(context, c_event, (const char **)changed_property,
+							context->user_data);
+
+	if (changed_property != NULL) {
+		char **prop;
+
+		for (prop = changed_property; *prop != NULL; prop++)
+			free(*prop);
+		free(changed_property);
+	}
 }
 
 static void remove_trigger(gpointer data)

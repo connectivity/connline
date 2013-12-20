@@ -26,7 +26,7 @@
 #include <connline/connline.h>
 #include <event2/event.h>
 
-void print_properties(char **properties)
+void print_properties(const char **properties)
 {
 	int i;
 
@@ -34,8 +34,8 @@ void print_properties(char **properties)
 		return;
 
 	for (i = 0; properties[i] != NULL; i += 2) {
-		char *property = properties[i];
-		char *value = properties[i+1];
+		const char *property = properties[i];
+		const char *value = properties[i+1];
 
 		printf("Property: %s = %s\n", property, value);
 	}
@@ -52,13 +52,12 @@ void cleanup_everything(int fd, short event, void *arg)
 
 void network_connection_callback(struct connline_context *context,
 					enum connline_event event,
-					char **properties,
+					const char **properties,
 					void *user_data)
 {
 	struct event_base *ev_base = user_data;
 	struct timeval timeout;
 	struct event *ev;
-	char **prop;
 
 	switch (event) {
 	case CONNLINE_EVENT_ERROR:
@@ -85,10 +84,6 @@ void network_connection_callback(struct connline_context *context,
 		break;
 	case CONNLINE_EVENT_PROPERTY:
 		print_properties(properties);
-
-		for (prop = properties; *prop != NULL; prop++)
-			free(*prop);
-		free(properties);
 		break;
 	default:
 		break;

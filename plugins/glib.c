@@ -281,7 +281,11 @@ static gboolean trigger_run(gpointer data)
 	if (context_ht != NULL)
 		g_hash_table_remove(context_ht, GINT_TO_POINTER(source_id));
 
-	callback(context, event, changed_property, context->user_data);
+	callback(context, event, (const char **)changed_property,
+							context->user_data);
+
+	if (changed_property != NULL)
+		g_strfreev(changed_property);
 
 	return FALSE;
 }
