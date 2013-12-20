@@ -152,6 +152,7 @@ static void nm_device_all_cb(DBusPendingCall *pending, void *user_data)
 {
 	struct connline_context *context = user_data;
 	char ip[INET_ADDRSTRLEN+1];
+	char **properties = NULL;
 	unsigned int dev_state;
 	unsigned int dev_type;
 	const char *interface;
@@ -160,7 +161,6 @@ static void nm_device_all_cb(DBusPendingCall *pending, void *user_data)
 	DBusMessage *reply;
 	struct nm_dbus *nm;
 	struct in_addr in4;
-	char **properties;
 	unsigned int ip4;
 
 	if (dbus_pending_call_get_completed(pending) == FALSE)
@@ -203,11 +203,6 @@ static void nm_device_all_cb(DBusPendingCall *pending, void *user_data)
 
 	free_devices(nm);
 
-	/* If application does not want to get notified
-	 * about the prpoerties, we will forget about it */
-	if (context->property_callback == NULL)
-		goto out;
-
 	if (connline_dbus_get_dict_entry_basic(&arg, "Ip4Address",
 						DBUS_TYPE_UINT32, &ip4) < 0)
 		goto error;
@@ -222,8 +217,6 @@ static void nm_device_all_cb(DBusPendingCall *pending, void *user_data)
 	if (connline_dbus_get_dict_entry_basic(&arg, "IpInterface",
 					DBUS_TYPE_STRING, &interface) < 0)
 		goto error;
-
-	properties = NULL;
 
 	properties = insert_into_property_list(properties, "bearer",
 					connline_bearer_to_string(nm->bearer));

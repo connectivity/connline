@@ -114,11 +114,11 @@ static void wicd_backend_data_cleanup(struct connline_context *context)
 static void wicd_interface_cb(DBusPendingCall *pending, void *user_data)
 {
 	struct connline_context *context = user_data;
+	char **properties = NULL;
 	struct wicd_dbus *wicd;
 	DBusMessageIter arg;
 	DBusMessage *reply;
 	const char *iface;
-	char **properties;
 
 	if (dbus_pending_call_get_completed(pending) == FALSE)
 		return;
@@ -135,8 +135,6 @@ static void wicd_interface_cb(DBusPendingCall *pending, void *user_data)
 
 	if (connline_dbus_get_basic(&arg, DBUS_TYPE_STRING, &iface) != 0)
 		goto error;
-
-	properties = NULL;
 
 	properties = insert_into_property_list(properties, "bearer",
 				connline_bearer_to_string(wicd->bearer));
@@ -219,12 +217,8 @@ static int process_with_connection(struct connline_context *context,
 		context->is_online = TRUE;
 		wicd->ip = strdup(ip[0]);
 
-		/* If application wants to be notified about
-		 * the properties, we will handle it */
-		if (context->property_callback != NULL) {
-			if (wicd_get_interface(context) != 0)
-				return -1;
-		}
+		if (wicd_get_interface(context) != 0)
+			return -1;
 
 		return 1;
 	}

@@ -212,9 +212,9 @@ static DBusHandlerResult notifier_update_method(DBusConnection *dbus_cnx,
 {
 	struct connline_context *context = user_data;
 	struct connman_dbus *connman;
+	char **properties = NULL;
 	DBusMessageIter arg, dict;
 	const char *value;
-	char **properties;
 
 	connman = context->backend_data;
 
@@ -236,13 +236,6 @@ static DBusHandlerResult notifier_update_method(DBusConnection *dbus_cnx,
 			__connline_call_disconnected_callback(context);
 		}
 	}
-
-	/* If application does not want to get notified
-	 * about the properties, then we forget about it */
-	if (context->property_callback == NULL)
-		goto done;
-
-	properties = NULL;
 
 	properties = insert_into_property_list(properties, "bearer",
 				connline_bearer_to_string(connman->bearer));
@@ -272,7 +265,6 @@ static DBusHandlerResult notifier_update_method(DBusConnection *dbus_cnx,
 	if (properties != NULL)
 		__connline_call_property_callback(context, properties);
 
-done:
 	dbus_message_unref(message);
 
 	return DBUS_HANDLER_RESULT_HANDLED;
