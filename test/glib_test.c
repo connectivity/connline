@@ -151,15 +151,9 @@ int main( void )
 	if (connline_init(CONNLINE_EVENT_LOOP_GLIB, NULL) != 0)
 		goto error;
 
-	cnx = connline_new(CONNLINE_BEARER_UNKNOWN);
+	cnx = connline_open(CONNLINE_BEARER_UNKNOWN, false,
+				network_connection_callback, loop);
 	if (cnx == NULL)
-		goto error;
-
-	connline_set_event_callback(cnx, network_connection_callback);
-	connline_set_property_callback(cnx, network_connection_callback);
-	connline_set_user_data(cnx, loop);
-
-	if (connline_open(cnx, FALSE) != 0)
 		goto error;
 
 	sig_hdl = setup_signal_handler(loop);

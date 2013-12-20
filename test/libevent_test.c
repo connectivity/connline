@@ -100,15 +100,9 @@ int main( void )
 	if (connline_init(CONNLINE_EVENT_LOOP_LIBEVENT, ev_base) != 0)
 		goto error;
 
-	cnx = connline_new(CONNLINE_BEARER_ETHERNET);
+	cnx = connline_open(CONNLINE_BEARER_ETHERNET, false,
+					network_connection_callback, ev_base);
 	if (cnx == NULL)
-		goto error;
-
-	connline_set_event_callback(cnx, network_connection_callback);
-	connline_set_property_callback(cnx, network_connection_callback);
-	connline_set_user_data(cnx, ev_base);
-
-	if (connline_open(cnx, false) != 0)
 		goto error;
 
 	event_base_dispatch(ev_base);
